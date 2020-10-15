@@ -1,0 +1,5 @@
+rootProject.name = 'tja-bh'
+
+include 'application'
+include 'library'
+
