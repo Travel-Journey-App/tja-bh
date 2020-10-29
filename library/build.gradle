@@ -1,7 +1,9 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id "io.freefair.lombok" version "5.2.1"
 }
 
+version = '1.0-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -15,5 +17,7 @@ repositories {
 }
 
 dependencies {
+    compile 'joda-time:joda-time:2.10.6'
+    compileOnly 'org.projectlombok:lombok'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
