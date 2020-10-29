@@ -37,6 +37,7 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'io.zonky.test:embedded-database-spring-test:1.5.5'
 }
 
 test {
