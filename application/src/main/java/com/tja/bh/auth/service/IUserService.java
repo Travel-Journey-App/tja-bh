@@ -1,9 +1,10 @@
-package auth.service;
-import auth.dto.UserDto;
-import auth.error.UserAlreadyExistException;
-import auth.model.PasswordResetToken;
-import auth.model.User;
-import auth.model.VerificationToken;
+package com.tja.bh.auth.service;
+
+import com.tja.bh.auth.dto.UserDto;
+import com.tja.bh.auth.error.UserAlreadyExistException;
+import com.tja.bh.auth.model.PasswordResetToken;
+import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.model.VerificationToken;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;

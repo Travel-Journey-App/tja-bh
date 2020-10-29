@@ -1,5 +1,7 @@
-package auth.model;
+package com.tja.bh.auth.repository;
 
+import com.tja.bh.auth.model.PasswordResetToken;
+import com.tja.bh.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

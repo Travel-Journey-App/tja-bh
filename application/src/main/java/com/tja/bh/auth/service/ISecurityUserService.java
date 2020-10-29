@@ -1,4 +1,4 @@
-package auth.service;
+package com.tja.bh.auth.service;
 
 public interface ISecurityUserService {
 

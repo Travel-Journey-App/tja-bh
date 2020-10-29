@@ -1,10 +1,12 @@
-package auth;
+package com.tja.bh.auth;
+
+import com.tja.bh.auth.model.User;
+import lombok.Data;
+import org.springframework.context.ApplicationEvent;
 
 import java.util.Locale;
 
-import auth.model.User;
-import org.springframework.context.ApplicationEvent;
-
+@Data
 @SuppressWarnings("serial")
 public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
@@ -18,17 +20,4 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
         this.locale = locale;
         this.appUrl = appUrl;
     }
-
-    public String getAppUrl() {
-        return appUrl;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
 }

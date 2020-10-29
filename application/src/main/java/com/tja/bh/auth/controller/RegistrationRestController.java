@@ -1,16 +1,15 @@
-package auth.controller;
+package com.tja.bh.auth.controller;
 
-import auth.GenericResponse;
-import auth.OnRegistrationCompleteEvent;
-import auth.dto.PasswordDto;
-import auth.dto.UserDto;
-import auth.error.InvalidOldPasswordException;
-import auth.model.User;
-import auth.model.VerificationToken;
-import auth.service.ISecurityUserService;
-import auth.service.IUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tja.bh.auth.GenericResponse;
+import com.tja.bh.auth.OnRegistrationCompleteEvent;
+import com.tja.bh.auth.dto.PasswordDto;
+import com.tja.bh.auth.dto.UserDto;
+import com.tja.bh.auth.error.InvalidOldPasswordException;
+import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.model.VerificationToken;
+import com.tja.bh.auth.service.ISecurityUserService;
+import com.tja.bh.auth.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -18,7 +17,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -28,34 +30,28 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@Slf4j
 public class RegistrationRestController {
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private final IUserService userService;
+    private final ISecurityUserService securityUserService;
+    private final MessageSource messages;
+    private final JavaMailSender mailSender;
+    private final ApplicationEventPublisher eventPublisher;
+    private final Environment env;
 
     @Autowired
-    private IUserService userService;
-
-    @Autowired
-    private ISecurityUserService securityUserService;
-
-    @Autowired
-    private MessageSource messages;
-
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    @Autowired
-    private Environment env;
-
-    public RegistrationRestController() {
-        super();
+    public RegistrationRestController(IUserService userService, ISecurityUserService securityUserService, MessageSource messages, JavaMailSender mailSender, ApplicationEventPublisher eventPublisher, Environment env) {
+        this.userService = userService;
+        this.securityUserService = securityUserService;
+        this.messages = messages;
+        this.mailSender = mailSender;
+        this.eventPublisher = eventPublisher;
+        this.env = env;
     }
 
     @PostMapping("/user/registration")
     public GenericResponse registerUserAccount(@Valid final UserDto accountDto, final HttpServletRequest request) {
-        LOGGER.debug("Registering user account with information: {}", accountDto);
+        log.debug("Registering user account with information: {}", accountDto);
 
         final User registered = userService.registerNewUserAccount(accountDto);
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registered, request.getLocale(), getAppUrl(request)));
@@ -86,12 +82,12 @@ public class RegistrationRestController {
 
         final String result = securityUserService.validatePasswordResetToken(passwordDto.getToken());
 
-        if(result != null) {
+        if (result != null) {
             return new GenericResponse(messages.getMessage("auth.message." + result, null, locale));
         }
 
         Optional<User> user = userService.getUserByPasswordResetToken(passwordDto.getToken());
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             userService.changeUserPassword(user.get(), passwordDto.getNewPassword());
             return new GenericResponse(messages.getMessage("message.resetPasswordSuc", null, locale));
         } else {

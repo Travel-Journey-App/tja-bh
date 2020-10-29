@@ -1,10 +1,9 @@
-package auth.controller;
+package com.tja.bh.auth.controller;
 
-import auth.model.User;
-import auth.service.ISecurityUserService;
-import auth.service.IUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.service.ISecurityUserService;
+import com.tja.bh.auth.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,21 +21,18 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Controller
+@Slf4j
 public class RegistrationController {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    @Autowired
-    private IUserService userService;
+    private final IUserService userService;
+    private final ISecurityUserService securityUserService;
+    private final MessageSource messages;
 
     @Autowired
-    private ISecurityUserService securityUserService;
-
-    @Autowired
-    private MessageSource messages;
-
-    public RegistrationController() {
+    public RegistrationController(IUserService userService, ISecurityUserService securityUserService, MessageSource messages) {
         super();
+        this.userService = userService;
+        this.securityUserService = securityUserService;
+        this.messages = messages;
     }
 
     @GetMapping("/registrationConfirm")
