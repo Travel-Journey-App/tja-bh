@@ -1,6 +1,7 @@
 package com.tja.bh.auth.dto;
 
-import com.tja.bh.auth.PasswordMatches;
+import com.tja.bh.auth.validation.PasswordMatches;
+import com.tja.bh.auth.validation.ValidEmail;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class UserDto {
     @Size(min = 1)
     private String matchingPassword;
 
+    @ValidEmail
     @NotNull
     @Size(min = 1, message = "{Size.userDto.email}")
     private String email;

@@ -1,7 +1,7 @@
-package com.tja.bh.auth;
+package com.tja.bh.auth.validation;
 
 import com.nimbusds.jose.Payload;
-import com.tja.bh.auth.validation.PasswordMatchesValidator;
+import com.tja.bh.auth.validation.validator.PasswordMatchesValidator;
 
 import javax.validation.Constraint;
 import java.lang.annotation.Documented;

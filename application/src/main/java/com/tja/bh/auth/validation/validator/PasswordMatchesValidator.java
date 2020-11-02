@@ -1,7 +1,7 @@
-package com.tja.bh.auth.validation;
+package com.tja.bh.auth.validation.validator;
 
-import com.tja.bh.auth.PasswordMatches;
 import com.tja.bh.auth.dto.UserDto;
+import com.tja.bh.auth.validation.PasswordMatches;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
