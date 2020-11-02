@@ -11,7 +11,6 @@ import com.tja.bh.auth.repository.UserRepository;
 import com.tja.bh.auth.repository.VerificationTokenRepository;
 import com.tja.bh.auth.service.IUserService;
 import lombok.val;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
