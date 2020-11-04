@@ -1,16 +1,17 @@
-package com.tja.bh.auth.model;
+package com.tja.bh.auth.persistence.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jboss.aerogear.security.otp.api.Base32;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "user_account")
-public class User {
+public class User implements Serializable {
     @Id
     @Column(unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)

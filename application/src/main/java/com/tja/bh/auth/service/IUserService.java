@@ -2,9 +2,9 @@ package com.tja.bh.auth.service;
 
 import com.tja.bh.auth.dto.UserDto;
 import com.tja.bh.auth.error.UserAlreadyExistException;
-import com.tja.bh.auth.model.PasswordResetToken;
-import com.tja.bh.auth.model.User;
-import com.tja.bh.auth.model.VerificationToken;
+import com.tja.bh.auth.persistence.model.PasswordResetToken;
+import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.auth.persistence.model.VerificationToken;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;

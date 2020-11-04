@@ -1,6 +1,6 @@
 package com.tja.bh.auth.controller;
 
-import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.persistence.model.User;
 import com.tja.bh.auth.service.ISecurityUserService;
 import com.tja.bh.auth.service.IUserService;
 import lombok.extern.slf4j.Slf4j;

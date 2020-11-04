@@ -1,6 +1,6 @@
 package com.tja.bh.auth;
 
-import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.persistence.model.User;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 

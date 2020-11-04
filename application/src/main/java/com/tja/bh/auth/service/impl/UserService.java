@@ -1,19 +1,16 @@
 package com.tja.bh.auth.service.impl;
 
-import com.maxmind.geoip2.DatabaseReader;
 import com.tja.bh.auth.dto.UserDto;
 import com.tja.bh.auth.error.UserAlreadyExistException;
-import com.tja.bh.auth.model.PasswordResetToken;
-import com.tja.bh.auth.model.User;
-import com.tja.bh.auth.model.VerificationToken;
-import com.tja.bh.auth.repository.PasswordResetTokenRepository;
-import com.tja.bh.auth.repository.UserRepository;
-import com.tja.bh.auth.repository.VerificationTokenRepository;
+import com.tja.bh.auth.persistence.model.PasswordResetToken;
+import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.auth.persistence.model.VerificationToken;
+import com.tja.bh.auth.persistence.repository.PasswordResetTokenRepository;
+import com.tja.bh.auth.persistence.repository.UserRepository;
+import com.tja.bh.auth.persistence.repository.VerificationTokenRepository;
 import com.tja.bh.auth.service.IUserService;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
@@ -51,11 +48,6 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private SessionRegistry sessionRegistry;
-    @Autowired
-    @Qualifier("GeoIPCountry")
-    private DatabaseReader databaseReader;
-    @Autowired
-    private Environment env;
 
     // API
 

@@ -1,6 +1,6 @@
 package com.tja.bh.auth.controller;
 
-import com.tja.bh.auth.model.ActiveUserStore;
+import com.tja.bh.auth.persistence.model.ActiveUserStore;
 import com.tja.bh.auth.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

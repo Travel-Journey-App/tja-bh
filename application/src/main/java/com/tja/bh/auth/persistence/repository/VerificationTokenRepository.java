@@ -1,14 +1,16 @@
-package com.tja.bh.auth.repository;
+package com.tja.bh.auth.persistence.repository;
 
-import com.tja.bh.auth.model.User;
-import com.tja.bh.auth.model.VerificationToken;
+import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.auth.persistence.model.VerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.stream.Stream;
 
+@Repository
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Long> {
 
     VerificationToken findByToken(String token);

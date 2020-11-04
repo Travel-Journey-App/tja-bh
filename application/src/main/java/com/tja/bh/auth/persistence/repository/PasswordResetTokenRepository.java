@@ -1,14 +1,16 @@
-package com.tja.bh.auth.repository;
+package com.tja.bh.auth.persistence.repository;
 
-import com.tja.bh.auth.model.PasswordResetToken;
-import com.tja.bh.auth.model.User;
+import com.tja.bh.auth.persistence.model.PasswordResetToken;
+import com.tja.bh.auth.persistence.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.stream.Stream;
 
+@Repository
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
 
     PasswordResetToken findByToken(String token);

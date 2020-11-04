@@ -1,12 +1,11 @@
 package com.tja.bh.auth.controller;
 
 import com.tja.bh.auth.GenericResponse;
-import com.tja.bh.auth.OnRegistrationCompleteEvent;
 import com.tja.bh.auth.dto.PasswordDto;
 import com.tja.bh.auth.dto.UserDto;
 import com.tja.bh.auth.error.InvalidOldPasswordException;
-import com.tja.bh.auth.model.User;
-import com.tja.bh.auth.model.VerificationToken;
+import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.auth.persistence.model.VerificationToken;
 import com.tja.bh.auth.service.ISecurityUserService;
 import com.tja.bh.auth.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +17,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +26,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
@@ -42,7 +40,9 @@ public class RegistrationRestController {
     private final Environment env;
 
     @Autowired
-    public RegistrationRestController(IUserService userService, ISecurityUserService securityUserService, MessageSource messages, JavaMailSender mailSender, ApplicationEventPublisher eventPublisher, Environment env) {
+    public RegistrationRestController(IUserService userService, ISecurityUserService securityUserService,
+                                      MessageSource messages, JavaMailSender mailSender,
+                                      ApplicationEventPublisher eventPublisher, Environment env) {
         this.userService = userService;
         this.securityUserService = securityUserService;
         this.messages = messages;
@@ -58,12 +58,12 @@ public class RegistrationRestController {
         return "registration";
     }
 
-    @PostMapping("/user/registration")
-    public GenericResponse registerUserAccount(@Valid final UserDto accountDto, final HttpServletRequest request) {
+    @PostMapping(path = "/user/registration", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public GenericResponse registerUserAccount(@RequestBody @Valid final UserDto accountDto) {
         log.debug("Registering user account with information: {}", accountDto);
 
         final User registered = userService.registerNewUserAccount(accountDto);
-        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registered, request.getLocale(), getAppUrl(request)));
+        //eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registered, request.getLocale(), getAppUrl(request)));
         return new GenericResponse("success");
     }
 
