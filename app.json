@@ -8,7 +8,8 @@
     "review": {
       "env": {
         "POSTGRESQL_VERSION": "12",
-        "REDIS_VERSION": "4"
+        "REDIS_VERSION": "4",
+        "SPRING_PROFILES_ACTIVE": "prod"
       },
       "addons": [
         "heroku-postgresql:in-dyno",
