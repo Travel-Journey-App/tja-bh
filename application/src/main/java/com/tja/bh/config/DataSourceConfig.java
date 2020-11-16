@@ -20,7 +20,7 @@ public class DataSourceConfig {
 
         val username = dbUri.getUserInfo().split(":")[0];
         val password = dbUri.getUserInfo().split(":")[1];
-        val dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
+        val dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
 
         val dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(dbUrl);

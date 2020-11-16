@@ -16,6 +16,11 @@ configurations {
     }
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
+
 repositories {
     mavenCentral()
 }
@@ -36,7 +41,7 @@ dependencies {
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.jboss.aerogear:aerogear-otp-java:1.0.0'
     implementation 'com.maxmind.geoip2:geoip2:2.3.1'
-    implementation 'redis.clients:jedis:2.2.1'
+    implementation 'redis.clients:jedis:3.2.0'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
