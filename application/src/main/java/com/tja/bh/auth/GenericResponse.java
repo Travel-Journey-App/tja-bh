@@ -1,39 +1,29 @@
 package com.tja.bh.auth;
 
-import lombok.Data;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
+import lombok.Builder;
+import lombok.Getter;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.Serializable;
 
-@Data
-public class GenericResponse {
-    private String message;
-    private String error;
+@Getter
+@Builder
+public class GenericResponse<T> implements Serializable {
+    @Builder.Default
+    private final Status status = Status.ERROR;
+    private final T body;
 
-    public GenericResponse(final String message) {
-        super();
-        this.message = message;
+    public static <T> GenericResponse<T> success(T body) {
+        return GenericResponse.<T>builder()
+                .status(Status.OK)
+                .body(body)
+                .build();
     }
 
-    public GenericResponse(final String message, final String error) {
-        super();
-        this.message = message;
-        this.error = error;
+    public static <T> GenericResponse<T> error() {
+        return GenericResponse.<T>builder().build();
     }
 
-    public GenericResponse(List<ObjectError> allErrors, String error) {
-        this.error = error;
-        String temp = allErrors.stream()
-                .map(e -> {
-                    if (e instanceof FieldError) {
-                        return "{\"field\":\"" + ((FieldError) e).getField() + "\",\"defaultMessage\":\"" + e.getDefaultMessage() + "\"}";
-                    } else {
-                        return "{\"object\":\"" + e.getObjectName() + "\",\"defaultMessage\":\"" + e.getDefaultMessage() + "\"}";
-                    }
-                })
-                .collect(Collectors.joining(","));
-        this.message = "[" + temp + "]";
+    public enum Status {
+        OK, ERROR
     }
 }

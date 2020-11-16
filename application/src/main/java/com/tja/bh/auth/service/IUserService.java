@@ -2,17 +2,21 @@ package com.tja.bh.auth.service;
 
 import com.tja.bh.auth.dto.UserDto;
 import com.tja.bh.auth.error.UserAlreadyExistException;
-import com.tja.bh.auth.model.PasswordResetToken;
-import com.tja.bh.auth.model.User;
-import com.tja.bh.auth.model.VerificationToken;
+import com.tja.bh.auth.persistence.model.PasswordResetToken;
+import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.auth.persistence.model.VerificationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 
-public interface IUserService {
+public interface IUserService extends UserDetailsService {
 
-    User registerNewUserAccount(UserDto accountDto) throws UserAlreadyExistException;
+    User signUp(UserDto accountDto) throws UserAlreadyExistException;
+
+    User signIn(UserDto accountDto) throws UsernameNotFoundException;
 
     User getUser(String verificationToken);
 
