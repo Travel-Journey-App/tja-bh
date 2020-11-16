@@ -5,25 +5,27 @@ import com.tja.bh.auth.error.UserAlreadyExistException;
 import com.tja.bh.auth.persistence.model.PasswordResetToken;
 import com.tja.bh.auth.persistence.model.User;
 import com.tja.bh.auth.persistence.model.VerificationToken;
+import com.tja.bh.auth.persistence.model.enumeration.UserRole;
 import com.tja.bh.auth.persistence.repository.PasswordResetTokenRepository;
+import com.tja.bh.auth.persistence.repository.RoleRepository;
 import com.tja.bh.auth.persistence.repository.UserRepository;
 import com.tja.bh.auth.persistence.repository.VerificationTokenRepository;
 import com.tja.bh.auth.service.IUserService;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -32,39 +34,63 @@ import static java.util.Objects.nonNull;
 @Service
 @Transactional
 public class UserService implements IUserService {
-
     public static final String TOKEN_INVALID = "invalidToken";
     public static final String TOKEN_EXPIRED = "expired";
     public static final String TOKEN_VALID = "valid";
     public static String QR_PREFIX = "https://chart.googleapis.com/chart?chs=200x200&chld=M%%7C0&cht=qr&chl=";
-    public static String APP_NAME = "SpringRegistration";
+    public static String APP_NAME = "TjaRegistration";
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Autowired
     private VerificationTokenRepository tokenRepository;
+
     @Autowired
     private PasswordResetTokenRepository passwordTokenRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private SessionRegistry sessionRegistry;
 
     // API
 
     @Override
-    public User registerNewUserAccount(final UserDto accountDto) {
-        if (emailExists(accountDto.getEmail())) {
-            throw new UserAlreadyExistException("There is an account with that email address: " + accountDto.getEmail());
+    public User signUp(final UserDto userDto) {
+        if (emailExists(userDto.getEmail())) {
+            throw new UserAlreadyExistException("There is an account with that email address: " + userDto.getEmail());
         }
 
-        val user = new User();
-        user.setFirstName(accountDto.getFirstName());
-        user.setLastName(accountDto.getLastName());
-        user.setPassword(passwordEncoder.encode(accountDto.getPassword()));
-        user.setEmail(accountDto.getEmail());
-        user.setUsing2FA(accountDto.isUsing2FA());
+        val user = User.builder()
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .email(userDto.getEmail())
+                .isUsing2FA(userDto.isUsing2FA())
+                .roles(Collections.singleton(UserRole.USER.convertToRole()))
+                .build();
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public User signIn(UserDto accountDto) throws UsernameNotFoundException {
+        val user = findUserByEmail(accountDto.getEmail());
+
+        if (isNull(user)) {
+            throw new UsernameNotFoundException("Username was not found");
+        }
+
+        if (!passwordEncoder.matches(accountDto.getPassword(), user.getPassword())) {
+            throw new AuthenticationCredentialsNotFoundException("Incorrect credentials");
+        }
+
+        return user;
     }
 
     @Override
@@ -209,4 +235,14 @@ public class UserService implements IUserService {
         return userRepository.findByEmail(email) != null;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        val user = userRepository.findByEmail(username);
+
+        if (isNull(user)) {
+            throw new UsernameNotFoundException("User was not found");
+        }
+
+        return user;
+    }
 }

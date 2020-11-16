@@ -14,7 +14,7 @@ public class LocalTestConfiguration {
     public LocalTestConfiguration(@Value("${spring.redis.port}") int redisPort) {
         this.redisServer = RedisServer.builder()
                 .port(redisPort)
-                .setting("maxmemory 128M")
+                .setting("maxmemory 64M")
                 .build();
 
     }

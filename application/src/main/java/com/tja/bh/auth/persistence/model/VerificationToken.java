@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -31,10 +32,11 @@ public class VerificationToken implements Serializable {
     }
 
     public VerificationToken(final String token) {
-        super();
+        this(token, null);
+    }
 
-        this.token = token;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    public VerificationToken(final User user) {
+        this(UUID.randomUUID().toString(), user);
     }
 
     public VerificationToken(final String token, final User user) {
