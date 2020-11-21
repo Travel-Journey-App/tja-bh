@@ -5,14 +5,14 @@ import com.tja.bh.unsplash.dto.SearchResult;
 import javassist.tools.web.BadHttpRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-
+@Component
 public class UnsplashClient {
-    private String baseUrl;
-    private String clientId;
-    private RestTemplate restTemplate;
-    private HttpHeaders headers;
+    private final String baseUrl;
+    private final RestTemplate restTemplate;
+    private final HttpHeaders headers;
 
     private static final String DEFAULT_QUERY = "Tokyo";
 
@@ -21,13 +21,12 @@ public class UnsplashClient {
             @Value("${unsplash.access-key}") String accessKey
     ) {
         this.baseUrl = baseUrl;
-        this.clientId = accessKey;
         this.restTemplate = new RestTemplate();
         headers = new HttpHeaders();
-        headers.add("Authorization", "Client-ID " + this.clientId);
+        headers.add("Authorization", "Client-ID " + accessKey);
     }
 
-    public Photo getPhotoBySearchOrDefault(String query) throws BadHttpRequest {
+    public Photo getPhotoBySearchOrDefault(final String query) throws BadHttpRequest {
         if (query.isBlank()) {
             throw new IllegalArgumentException("Search query must not be blank!");
         }
@@ -41,7 +40,7 @@ public class UnsplashClient {
         return resultForDefault.getResults().get(0);
     }
 
-    private SearchResult getSearchResult(String query) throws BadHttpRequest {
+    private SearchResult getSearchResult(final String query) throws BadHttpRequest {
         HttpEntity request = new HttpEntity(headers);
         String url = getQueryURL(query);
         ResponseEntity<SearchResult> response = restTemplate.exchange(url, HttpMethod.GET, request, SearchResult.class);
@@ -53,7 +52,7 @@ public class UnsplashClient {
         return response.getBody();
     }
 
-    private String getQueryURL(String query) {
+    private String getQueryURL(final String query) {
         return baseUrl +
                 "/search/photos?" +
                 "page=1" +
@@ -61,7 +60,7 @@ public class UnsplashClient {
                 "&query=" + query;
     }
 
-    private void handleError(ResponseEntity responseEntity) throws BadHttpRequest {
+    private void handleError(final ResponseEntity<SearchResult> responseEntity) throws BadHttpRequest {
         if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
             throw new BadHttpRequest();
         }
