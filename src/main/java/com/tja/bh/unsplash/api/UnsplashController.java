@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = "/unsplash", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/unsplash", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 @Controller
 @Slf4j
 public class UnsplashController {

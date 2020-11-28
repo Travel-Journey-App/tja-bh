@@ -3,6 +3,7 @@ package com.tja.bh.unsplash.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchResult {
     private int total;
@@ -16,9 +17,10 @@ public class SearchResult {
         this.results = new ArrayList<>();
     }
 
-    public SearchResult(int total, int totalPages) {
+    public SearchResult(int total, int totalPages, ArrayList<Photo> results) {
         this.total = total;
         this.totalPages = totalPages;
+        this.results = results;
     }
 
     public void setTotal(int total) {
