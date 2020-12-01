@@ -9,7 +9,7 @@ public class SearchResult {
     private int total;
     @JsonProperty("total_pages")
     private int totalPages;
-    private ArrayList<Photo> results;
+    private List<Photo> results;
 
     public SearchResult() {
         this.total = 0;
@@ -17,7 +17,7 @@ public class SearchResult {
         this.results = new ArrayList<>();
     }
 
-    public SearchResult(int total, int totalPages, ArrayList<Photo> results) {
+    public SearchResult(int total, int totalPages, List<Photo> results) {
         this.total = total;
         this.totalPages = totalPages;
         this.results = results;
@@ -43,7 +43,7 @@ public class SearchResult {
         return totalPages;
     }
 
-    public ArrayList<Photo> getResults() {
+    public List<Photo> getResults() {
         return results;
     }
 }

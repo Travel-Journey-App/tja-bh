@@ -1,6 +1,6 @@
 package com.tja.bh.config;
 
-import com.tja.bh.auth.persistence.model.ActiveUserStore;
+import com.tja.bh.persistence.model.ActiveUserStore;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -66,6 +66,22 @@ dependencies {
 
 test {
     useJUnitPlatform()
+
+    testLogging.showStandardStreams = true
+
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            def output = "Results: ${result.resultType} " +
+                    "(${result.testCount} tests, " +
+                    "${result.successfulTestCount} passed, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped)"
+
+            def startItem = '|  ', endItem = '  |'
+            def repeatLength = startItem.length() + output.length() + endItem.length()
+            println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+        }
+    }
 }
 
 task resolveAndLockAll {

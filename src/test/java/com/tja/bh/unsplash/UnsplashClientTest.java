@@ -1,51 +1,54 @@
 package com.tja.bh.unsplash;
 
-import com.tja.bh.application.Application;
-import com.tja.bh.config.LocalTestConfiguration;
 import com.tja.bh.unsplash.api.UnsplashClient;
 import com.tja.bh.unsplash.dto.Photo;
 import com.tja.bh.unsplash.dto.SearchResult;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import javassist.tools.web.BadHttpRequest;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.*;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@AutoConfigureEmbeddedDatabase(beanName = "dataSource")
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes=Application.class)
-@SpringBootTest(classes = LocalTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 public class UnsplashClientTest {
+    private static final String URL_MOSCOW = getUrlForQuery("Moscow");
+    private static final String URL_TOKYO = getUrlForQuery("Tokyo");
 
     @Mock
     private RestTemplate restTemplate;
 
     @InjectMocks
-    UnsplashClient unsplashClient = new UnsplashClient("https://api.unsplash.com", "test");
+    private UnsplashClient unsplashClient;
 
-    private final Photo photo = new Photo();
-    private final SearchResult searchResult = new SearchResult(1, 1, new ArrayList<Photo>(Arrays.asList(photo)));
+    private SearchResult searchResult;
+
+    @BeforeEach
+    public void setUp() {
+        ReflectionTestUtils.setField(unsplashClient, "baseUrl", "https://api.unsplash.com");
+
+        final Photo photo = new Photo();
+        searchResult = new SearchResult(1, 1, Collections.singletonList(photo));
+    }
 
     @Test
     public void testEmptyQuery() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault(""));
 
         String expectedMessage = "Search query must not be blank!";
         String actualMessage = exception.getMessage();
@@ -55,9 +58,8 @@ public class UnsplashClientTest {
 
     @Test
     public void testBlankQuery() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("    ");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("    "));
 
         String expectedMessage = "Search query must not be blank!";
         String actualMessage = exception.getMessage();
@@ -67,68 +69,65 @@ public class UnsplashClientTest {
 
     @Test
     public void testReturnPhoto() throws BadHttpRequest {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-          .thenReturn(new ResponseEntity(searchResult, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(searchResult, HttpStatus.OK));
 
         Assert.assertEquals(searchResult.getResults().get(0), unsplashClient.getPhotoBySearchOrDefault("Moscow"));
     }
 
     @Test
     public void testReturnDefaultPhoto() throws BadHttpRequest {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(new SearchResult(), HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(new SearchResult(), HttpStatus.OK));
 
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Tokyo")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_TOKYO),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(searchResult, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(searchResult, HttpStatus.OK));
 
         Assert.assertEquals(searchResult.getResults().get(0), unsplashClient.getPhotoBySearchOrDefault("Moscow"));
     }
 
     @Test
     public void testReturnBadHttpRequest() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.BAD_REQUEST));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.BAD_REQUEST));
 
 
-        Exception exception = assertThrows(BadHttpRequest.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        assertThrows(BadHttpRequest.class, () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
     }
 
     @Test
     public void testReturnUnauthorized() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.UNAUTHORIZED));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED));
 
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
 
 
         String expectedMessage = "Unauthorized request";
@@ -139,18 +138,17 @@ public class UnsplashClientTest {
 
     @Test
     public void testReturnForbidden() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<Object>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.FORBIDDEN));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.FORBIDDEN));
 
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
 
 
         String expectedMessage = "Forbidden request";
@@ -161,18 +159,17 @@ public class UnsplashClientTest {
 
     @Test
     public void testReturnNotFound() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.NOT_FOUND));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
 
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
 
 
         String expectedMessage = "Not found";
@@ -183,18 +180,17 @@ public class UnsplashClientTest {
 
     @Test
     public void testReturnInternalServerError() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
 
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
 
 
         String expectedMessage = "Something went wrong on unsplash";
@@ -205,18 +201,17 @@ public class UnsplashClientTest {
 
     @Test
     public void testReturnServerUnavailable() {
-        Mockito.when(restTemplate.exchange(
-                Matchers.eq(getUrlForQuery("Moscow")),
-                Matchers.eq(HttpMethod.GET),
-                Matchers.any(),
-                Matchers.<Class<SearchResult>>any())
+        when(restTemplate.exchange(
+                eq(URL_MOSCOW),
+                eq(HttpMethod.GET),
+                any(),
+                ArgumentMatchers.<Class<SearchResult>>any())
         )
-                .thenReturn(new ResponseEntity(null, HttpStatus.SERVICE_UNAVAILABLE));
+                .thenReturn(new ResponseEntity<>(null, HttpStatus.SERVICE_UNAVAILABLE));
 
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            unsplashClient.getPhotoBySearchOrDefault("Moscow");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> unsplashClient.getPhotoBySearchOrDefault("Moscow"));
 
 
         String expectedMessage = "Something went wrong on unsplash";
@@ -225,13 +220,7 @@ public class UnsplashClientTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
-    private String getUrlForQuery(String query) {
+    private static String getUrlForQuery(String query) {
         return "https://api.unsplash.com/search/photos?page=1&per_page=1&query=" + query;
-    }
-
-    private HttpEntity getRequest() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Client-ID " + "test");
-        return new HttpEntity(headers);
     }
 }

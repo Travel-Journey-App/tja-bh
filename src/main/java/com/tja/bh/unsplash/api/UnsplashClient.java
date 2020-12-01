@@ -3,6 +3,7 @@ package com.tja.bh.unsplash.api;
 import com.tja.bh.unsplash.dto.Photo;
 import com.tja.bh.unsplash.dto.SearchResult;
 import javassist.tools.web.BadHttpRequest;
+import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -13,20 +14,21 @@ import org.springframework.web.client.RestTemplate;
 public class UnsplashClient {
     private final String baseUrl;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     private final HttpHeaders headers;
 
     private static final String DEFAULT_QUERY = "Tokyo";
 
+    @Autowired
     public UnsplashClient(
             @Value("${unsplash.base-url}") String baseUrl,
-            @Value("${unsplash.access-key}") String accessKey
-    ) {
+            @Value("${unsplash.access-key}") String accessKey,
+            RestTemplate restTemplate) {
         this.baseUrl = baseUrl;
         headers = new HttpHeaders();
         headers.add("Authorization", "Client-ID " + accessKey);
+        this.restTemplate = restTemplate;
     }
 
     public Photo getPhotoBySearchOrDefault(final String query) throws BadHttpRequest {
@@ -44,10 +46,8 @@ public class UnsplashClient {
     }
 
     private SearchResult getSearchResult(final String query) throws BadHttpRequest {
-        HttpEntity request = new HttpEntity(headers);
+        HttpEntity<Object> request = new HttpEntity<>(headers);
         String url = getQueryURL(query);
-        System.out.println(url);
-        System.out.println(request);
         ResponseEntity<SearchResult> response = restTemplate.exchange(url, HttpMethod.GET, request, SearchResult.class);
 
         if (response.getStatusCode().isError()) {

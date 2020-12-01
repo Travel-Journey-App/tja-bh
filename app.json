@@ -10,7 +10,8 @@
         "POSTGRESQL_VERSION": "12",
         "REDIS_VERSION": "4",
         "SPRING_PROFILES_ACTIVE": "prod",
-        "SUPPORT_EMAIL_ADDRESS": "test@test.com"
+        "SUPPORT_EMAIL_ADDRESS": "test@test.com",
+        "UNSPLASH_ACCESS_KEY": "test"
       },
       "addons": [
         "heroku-postgresql:in-dyno",

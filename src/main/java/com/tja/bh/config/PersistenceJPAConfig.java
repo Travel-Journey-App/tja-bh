@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EntityScan(basePackages = "com.tja.bh.auth.persistence.model")
-@EnableJpaRepositories(basePackages = "com.tja.bh.auth.persistence.repository")
+@EntityScan(basePackages = "com.tja.bh.persistence.model")
+@EnableJpaRepositories(basePackages = "com.tja.bh.persistence.repository")
 public class PersistenceJPAConfig {
 }

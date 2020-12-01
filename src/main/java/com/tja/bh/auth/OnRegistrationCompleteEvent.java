@@ -1,6 +1,6 @@
 package com.tja.bh.auth;
 
-import com.tja.bh.auth.persistence.model.User;
+import com.tja.bh.persistence.model.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;

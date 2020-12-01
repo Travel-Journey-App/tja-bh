@@ -1,6 +1,6 @@
 package com.tja.bh.unsplash.api;
 
-import com.tja.bh.auth.GenericResponse;
+import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.unsplash.dto.Photo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Controller
 @Slf4j
 public class UnsplashController {
+
     final UnsplashClient unsplashClient;
 
     @Autowired
