@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     User findByEmail(String email);
 
     @Override

@@ -1,15 +1,14 @@
 package com.tja.bh.controller;
 
 import com.tja.bh.auth.error.UserAlreadyExistException;
+import com.tja.bh.config.jwt.JwtProvider;
 import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.dto.UserDto;
 import com.tja.bh.persistence.model.User;
-import com.tja.bh.service.ISecurityUserService;
 import com.tja.bh.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,15 +21,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class RegistrationController {
     private final IUserService userService;
-    private final ISecurityUserService securityUserService;
-    private final MessageSource messages;
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    public RegistrationController(IUserService userService, ISecurityUserService securityUserService, MessageSource messages) {
+    public RegistrationController(IUserService userService, JwtProvider jwtProvider) {
         super();
         this.userService = userService;
-        this.securityUserService = securityUserService;
-        this.messages = messages;
+        this.jwtProvider = jwtProvider;
     }
 
     @PostMapping("/registration")

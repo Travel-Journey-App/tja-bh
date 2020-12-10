@@ -1,5 +1,6 @@
 package com.tja.bh.config;
 
+import com.tja.bh.config.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -7,24 +8,27 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    final DataSource postgresqlDataSource;
+    private final DataSource postgresqlDataSource;
+
+    private final JwtFilter jwtFilter;
 
     @Autowired
-    public SecurityConfig(DataSource postgresqlDataSource) {
+    public SecurityConfig(DataSource postgresqlDataSource, JwtFilter jwtFilter) {
         this.postgresqlDataSource = postgresqlDataSource;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -41,24 +45,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(postgresqlDataSource)
+                .authoritiesByUsernameQuery("select email, password from users where email=?")
                 .usersByUsernameQuery("select email, password, enabled from users where email=?");
     }
 
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable();
+
+        http.httpBasic().disable();
+
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/registration", "/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic(withDefaults());
-
-        http.sessionManagement()
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry())
-        ;
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 }

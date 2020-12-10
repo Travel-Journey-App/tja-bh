@@ -25,7 +25,7 @@ public class Trip {
 
     private String cover;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "trip")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "trip")
     private List<TripDay> days;
 
     @ManyToOne

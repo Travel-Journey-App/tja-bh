@@ -11,7 +11,8 @@
         "REDIS_VERSION": "4",
         "SPRING_PROFILES_ACTIVE": "prod",
         "SUPPORT_EMAIL_ADDRESS": "test@test.com",
-        "UNSPLASH_ACCESS_KEY": "test"
+        "UNSPLASH_ACCESS_KEY": "test",
+        "JWT_SECRET": "test"
       },
       "addons": [
         "heroku-postgresql:in-dyno",

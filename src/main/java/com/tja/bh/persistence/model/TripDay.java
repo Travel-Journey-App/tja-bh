@@ -22,6 +22,6 @@ public class TripDay {
     @ManyToOne
     private Trip trip;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "tripDay")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay")
     private List<TripActivity> activities;
 }

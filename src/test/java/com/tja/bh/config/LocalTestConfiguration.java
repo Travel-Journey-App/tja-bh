@@ -6,9 +6,12 @@ import redis.embedded.RedisServer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.logging.Logger;
 
 @TestConfiguration
 public class LocalTestConfiguration {
+    private static final Logger log = Logger.getLogger("LocalTestConfiguration");
+
     private final RedisServer redisServer;
 
     public LocalTestConfiguration(@Value("${spring.redis.port}") int redisPort) {
@@ -21,11 +24,23 @@ public class LocalTestConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        redisServer.start();
+        if (!redisServer.isActive()) {
+            try {
+                redisServer.start();
+            } catch (Exception e) {
+                log.warning(e.getMessage());
+            }
+        }
     }
 
     @PreDestroy
     public void preDestroy() {
-        redisServer.stop();
+        if (redisServer.isActive()) {
+            try {
+                redisServer.stop();
+            } catch (Exception e) {
+                log.warning(e.getMessage());
+            }
+        }
     }
 }

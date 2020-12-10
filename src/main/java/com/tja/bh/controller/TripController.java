@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static java.util.Objects.nonNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(value = "/api/trips", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -87,7 +88,7 @@ public class TripController {
     @PostMapping("/magic")
     public GenericResponse<Trip> createMagicTrip(@RequestBody Trip trip) {
         val tripId = trip.getId();
-        if (tripRepository.existsById(tripId)) {
+        if (nonNull(tripId) && tripRepository.existsById(tripId)) {
             trip = tripRepository.getOne(tripId);
             // todo add activities
             trip.setDays(List.of());
