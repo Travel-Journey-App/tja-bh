@@ -1,5 +1,6 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
 import lombok.*;
 
@@ -18,7 +19,8 @@ public abstract class TripActivity {
     @NonNull
     ActivityType activityType;
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tripday_id")
     private TripDay tripDay;
 }

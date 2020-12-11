@@ -3,6 +3,7 @@ package com.tja.bh.controller;
 import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.persistence.model.Trip;
 import com.tja.bh.persistence.repository.TripRepository;
+import com.tja.bh.service.IUserService;
 import com.tja.bh.unsplash.api.UnsplashController;
 import com.tja.bh.unsplash.dto.Photo;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
@@ -32,6 +32,9 @@ public class TripControllerTest {
 
     @Mock
     private UnsplashController unsplashController;
+
+    @Mock
+    private IUserService userService;
 
     @InjectMocks
     private TripController controller;
@@ -63,7 +66,8 @@ public class TripControllerTest {
 
     @Test
     public void createTripWithPhotoError() {
-        when(unsplashController.getPhoto(anyString())).thenReturn(GenericResponse.error());
+        when(unsplashController.getPhoto(anyString()))
+                .thenReturn(GenericResponse.error("error"));
 
         GenericResponse<Trip> response = controller.createTrip(trip);
         assertEquals(ERROR, response.getStatus());

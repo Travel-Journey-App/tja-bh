@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(value = "/", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/auth", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class RegistrationController {
     private final IUserService userService;
@@ -33,7 +33,7 @@ public class RegistrationController {
 
         if (!userDto.getPassword().equals(userDto.getMatchingPassword())) {
             log.error("Registration failed. Password does not match: {}", userDto);
-            return GenericResponse.error();
+            return GenericResponse.error("Password does not match");
         }
 
         try {
@@ -42,7 +42,7 @@ public class RegistrationController {
             return GenericResponse.success(user);
         } catch (UserAlreadyExistException e) {
             log.error("Registration failed: {}", e.getMessage());
-            return GenericResponse.error();
+            return GenericResponse.error(e.getMessage());
         }
     }
 
@@ -54,7 +54,7 @@ public class RegistrationController {
             return GenericResponse.success(existingUser);
         } catch (Exception e) {
             log.error("Login failed: {}", e.getMessage());
-            return GenericResponse.error();
+            return GenericResponse.error(e.getMessage());
         }
     }
 }

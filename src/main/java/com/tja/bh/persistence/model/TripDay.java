@@ -1,5 +1,6 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,9 +18,10 @@ public class TripDay {
     @Column(unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long order;
+    private Long orderInTrip;
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     private Trip trip;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay")

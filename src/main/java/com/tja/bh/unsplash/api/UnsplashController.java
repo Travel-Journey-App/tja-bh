@@ -1,6 +1,7 @@
 package com.tja.bh.unsplash.api;
 
 import com.tja.bh.dto.GenericResponse;
+import com.tja.bh.service.IUnsplashClient;
 import com.tja.bh.unsplash.dto.Photo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class UnsplashController {
 
-    final UnsplashClient unsplashClient;
+    private final IUnsplashClient unsplashClient;
 
     @Autowired
-    public UnsplashController(UnsplashClient unsplashClient) {
+    public UnsplashController(IUnsplashClient unsplashClient) {
         this.unsplashClient = unsplashClient;
     }
 
@@ -31,7 +32,7 @@ public class UnsplashController {
             return GenericResponse.success(photo);
         } catch (Exception e) {
             log.error("Photo obtaining failed for query {}: {}", query, e.getMessage());
-            return GenericResponse.error();
+            return GenericResponse.error(e.getMessage());
         }
     }
 }

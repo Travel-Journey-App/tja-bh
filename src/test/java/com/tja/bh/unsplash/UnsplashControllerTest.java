@@ -3,7 +3,7 @@ package com.tja.bh.unsplash;
 import com.tja.bh.application.Application;
 import com.tja.bh.config.jwt.JwtProvider;
 import com.tja.bh.service.IUserService;
-import com.tja.bh.unsplash.api.UnsplashClient;
+import com.tja.bh.service.impl.UnsplashClient;
 import com.tja.bh.unsplash.api.UnsplashController;
 import com.tja.bh.unsplash.dto.Photo;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;

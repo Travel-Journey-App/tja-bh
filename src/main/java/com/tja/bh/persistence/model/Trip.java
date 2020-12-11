@@ -1,5 +1,6 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -28,6 +29,7 @@ public class Trip {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "trip")
     private List<TripDay> days;
 
+    @JsonIgnore
     @ManyToOne
     private User user;
 }

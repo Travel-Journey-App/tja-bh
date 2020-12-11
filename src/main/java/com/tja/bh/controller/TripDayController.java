@@ -36,36 +36,39 @@ public class TripDayController {
             return GenericResponse.success(repository.getOne(dayId));
         }
 
-        return GenericResponse.error();
+        return GenericResponse.error("No trip day with id=%s found", dayId);
     }
 
     @DeleteMapping("")
     public GenericResponse<TripDay> deleteTripDay(@RequestBody TripDay tripDay) {
-        if (repository.existsById(tripDay.getId())) {
+        val dayId = tripDay.getId();
+        if (repository.existsById(dayId)) {
             val deletingTripDay = repository.getOne(tripDay.getId());
             repository.delete(tripDay);
 
             return GenericResponse.success(deletingTripDay);
         }
 
-        return GenericResponse.error();
+        return GenericResponse.error("No trip day with id=%s found", dayId);
     }
 
     @PutMapping("")
     public GenericResponse<TripDay> updateTripDay(@RequestBody TripDay tripDay) {
-        if (repository.existsById(tripDay.getId())) {
+        val dayId = tripDay.getId();
+        if (repository.existsById(dayId)) {
             return GenericResponse.success(repository.saveAndFlush(tripDay));
         }
 
-        return GenericResponse.error();
+        return GenericResponse.error("No trip day with id=%s found", dayId);
     }
 
     @PostMapping("")
     public GenericResponse<TripDay> createTripDay(@RequestBody TripDay tripDay) {
-        if (repository.existsById(tripDay.getId())) {
+        val dayId = tripDay.getId();
+        if (repository.existsById(dayId)) {
             return GenericResponse.success(repository.saveAndFlush(tripDay));
         }
 
-        return GenericResponse.error();
+        return GenericResponse.error("No trip day with id=%s found", dayId);
     }
 }

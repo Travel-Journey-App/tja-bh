@@ -1,6 +1,6 @@
 package com.tja.bh.unsplash;
 
-import com.tja.bh.unsplash.api.UnsplashClient;
+import com.tja.bh.service.impl.UnsplashClient;
 import com.tja.bh.unsplash.dto.Photo;
 import com.tja.bh.unsplash.dto.SearchResult;
 import javassist.tools.web.BadHttpRequest;

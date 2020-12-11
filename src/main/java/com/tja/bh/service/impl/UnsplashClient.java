@@ -1,17 +1,19 @@
-package com.tja.bh.unsplash.api;
+package com.tja.bh.service.impl;
 
+import com.tja.bh.service.IUnsplashClient;
 import com.tja.bh.unsplash.dto.Photo;
 import com.tja.bh.unsplash.dto.SearchResult;
 import javassist.tools.web.BadHttpRequest;
-import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Component
-public class UnsplashClient {
+@Profile("prod")
+@Service
+public class UnsplashClient implements IUnsplashClient {
     private final String baseUrl;
 
     private final RestTemplate restTemplate;

@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class GenericResponse<T> implements Serializable {
     @Builder.Default
     private final Status status = Status.ERROR;
+    private final String error;
     private final T body;
 
     public static <T> GenericResponse<T> success(T body) {
@@ -19,8 +20,14 @@ public class GenericResponse<T> implements Serializable {
                 .build();
     }
 
-    public static <T> GenericResponse<T> error() {
-        return GenericResponse.<T>builder().build();
+    public static <T> GenericResponse<T> error(String errorFormat, Object... params) {
+        return error(String.format(errorFormat, params));
+    }
+
+    public static <T> GenericResponse<T> error(String error) {
+        return GenericResponse.<T>builder()
+                .error(error)
+                .build();
     }
 
     public enum Status {

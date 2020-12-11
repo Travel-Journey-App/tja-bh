@@ -6,6 +6,7 @@ import com.tja.bh.persistence.model.enumeration.ActivityType;
 import com.tja.bh.persistence.repository.TripActivityRepository;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class TripActivityController {
         if (repository.existsById(activityId)) {
             return GenericResponse.success(repository.getOne(activityId));
         }
-        return GenericResponse.error();
+        return GenericResponse.error("No activity with id=%s found", activityId);
     }
 
     @GetMapping("")
@@ -48,7 +49,8 @@ public class TripActivityController {
             repository.deleteById(activityId);
             return GenericResponse.success(tripActivity);
         }
-        return GenericResponse.error();
+
+        return GenericResponse.error("No activity with id=%s found", activityId);
     }
 
     @PostMapping("")
@@ -58,9 +60,11 @@ public class TripActivityController {
 
     @PutMapping("")
     public GenericResponse<TripActivity> updateTripActivity(@RequestBody @NonNull TripActivity activity) {
+        val activityId = activity.getId();
         if (repository.existsById(activity.getId())) {
             return GenericResponse.success(repository.saveAndFlush(activity));
         }
-        return GenericResponse.error();
+
+        return GenericResponse.error("No activity with id=%s found", activityId);
     }
 }

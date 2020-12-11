@@ -46,6 +46,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             new ArrayList<>())
             );
         } catch (IOException e) {
+            log.error("JWTAuthenticationFilter. Authentication failed");
             throw new RuntimeException(e);
         }
     }
@@ -55,8 +56,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-
+        log.debug("JWTAuthenticationFilter. Successfully authenticated. Generating token");
         String token = jwtProvider.generateToken(((User) auth.getPrincipal()).getEmail());
         res.addHeader(AUTHORIZATION, BEARER_PREFIX + token);
+        log.debug("JWTAuthenticationFilter. Token generated");
     }
 }

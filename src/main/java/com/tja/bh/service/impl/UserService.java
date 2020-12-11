@@ -7,10 +7,12 @@ import com.tja.bh.persistence.model.User;
 import com.tja.bh.persistence.model.enumeration.UserRole;
 import com.tja.bh.persistence.repository.UserRepository;
 import com.tja.bh.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,7 @@ import java.util.Collections;
 
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @Transactional
 public class UserService implements IUserService {
@@ -81,6 +84,18 @@ public class UserService implements IUserService {
         val token = jwtProvider.generateToken(user.getEmail());
         user.setSecret(token);
         return user;
+    }
+
+    @Override
+    public User getUser() {
+        val auth = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            val user = (User) auth.getPrincipal();
+            return getUser(user.getSecret());
+        } catch (Exception e) {
+            log.error("UserService. Failed to extract user from SecurityContextHolder");
+            return null;
+        }
     }
 
     @Override

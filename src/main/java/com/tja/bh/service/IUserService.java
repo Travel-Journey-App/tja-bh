@@ -18,6 +18,8 @@ public interface IUserService extends UserDetailsService {
 
     User signIn(UserDto accountDto) throws UsernameNotFoundException;
 
+    User getUser();
+
     User getUser(String verificationToken);
 
     void deleteUser(User user);
