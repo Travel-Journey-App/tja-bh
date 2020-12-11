@@ -14,8 +14,8 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@RestController
 @RequestMapping(value = "/api/activity", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-@Controller
 @Slf4j
 public class TripActivityController {
 
@@ -34,7 +34,7 @@ public class TripActivityController {
         return GenericResponse.error();
     }
 
-    @GetMapping
+    @GetMapping("")
     public GenericResponse<List<TripActivity>> getTripActivitiesByCategory(
             @RequestParam("activityType") @NonNull ActivityType type
     ) {
@@ -51,12 +51,12 @@ public class TripActivityController {
         return GenericResponse.error();
     }
 
-    @PostMapping
+    @PostMapping("")
     public GenericResponse<TripActivity> createTripActivity(@RequestBody TripActivity activity) {
         return GenericResponse.success(repository.saveAndFlush(activity));
     }
 
-    @PutMapping
+    @PutMapping("")
     public GenericResponse<TripActivity> updateTripActivity(@RequestBody @NonNull TripActivity activity) {
         if (repository.existsById(activity.getId())) {
             return GenericResponse.success(repository.saveAndFlush(activity));

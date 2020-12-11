@@ -9,6 +9,7 @@ import com.tja.bh.persistence.repository.UserRepository;
 import com.tja.bh.service.IUserService;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,7 +32,7 @@ public class UserService implements IUserService {
     private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+    public UserService(@Lazy UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, @Lazy JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;

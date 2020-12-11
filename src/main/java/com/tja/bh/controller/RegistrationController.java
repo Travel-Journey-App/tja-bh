@@ -1,7 +1,6 @@
 package com.tja.bh.controller;
 
 import com.tja.bh.auth.error.UserAlreadyExistException;
-import com.tja.bh.config.jwt.JwtProvider;
 import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.dto.UserDto;
 import com.tja.bh.persistence.model.User;
@@ -16,18 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = "/", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 @RestController
+@RequestMapping(value = "/", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class RegistrationController {
     private final IUserService userService;
-    private final JwtProvider jwtProvider;
 
     @Autowired
-    public RegistrationController(IUserService userService, JwtProvider jwtProvider) {
+    public RegistrationController(IUserService userService) {
         super();
         this.userService = userService;
-        this.jwtProvider = jwtProvider;
     }
 
     @PostMapping("/registration")

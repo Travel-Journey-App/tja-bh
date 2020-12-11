@@ -9,16 +9,14 @@ import com.tja.bh.unsplash.dto.Photo;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static java.util.Objects.nonNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = "/api/trips", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-@Controller
+@RestController
+@RequestMapping(value = "/api/trips", produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class TripController {
 
@@ -32,7 +30,7 @@ public class TripController {
         this.unsplashController = unsplashController;
     }
 
-    @GetMapping
+    @GetMapping("")
     public GenericResponse<List<Trip>> getAllTrips() {
         return GenericResponse.success(tripRepository.findAll());
     }
@@ -55,7 +53,7 @@ public class TripController {
         return GenericResponse.error();
     }
 
-    @PutMapping
+    @PutMapping("")
     public GenericResponse<Trip> editTrip(@RequestBody Trip trip) {
         if (tripRepository.existsById(trip.getId())) {
             final Trip currentTrip = tripRepository.getOne(trip.getId());
@@ -72,7 +70,7 @@ public class TripController {
         return GenericResponse.error();
     }
 
-    @PostMapping
+    @PostMapping("")
     public GenericResponse<Trip> createTrip(@RequestBody Trip trip) {
         if (trip.getDestination().isBlank()) {
             return GenericResponse.error();
@@ -85,16 +83,12 @@ public class TripController {
         return GenericResponse.success(tripRepository.saveAndFlush(trip));
     }
 
-    @PostMapping("/magic")
-    public GenericResponse<Trip> createMagicTrip(@RequestBody Trip trip) {
-        val tripId = trip.getId();
-        if (nonNull(tripId) && tripRepository.existsById(tripId)) {
-            trip = tripRepository.getOne(tripId);
-            // todo add activities
-            trip.setDays(List.of());
-            return GenericResponse.success(tripRepository.saveAndFlush(trip));
-        }
+    @GetMapping("/magic")
+    public GenericResponse<Trip> createMagicTrip() {
+        val trip = Trip.builder()
+                //TODO add content
+                .build();
 
-        return GenericResponse.error();
+        return GenericResponse.success(tripRepository.saveAndFlush(trip));
     }
 }

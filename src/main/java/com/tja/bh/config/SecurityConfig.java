@@ -1,6 +1,9 @@
 package com.tja.bh.config;
 
-import com.tja.bh.config.jwt.JwtFilter;
+import com.tja.bh.config.jwt.JWTAuthenticationFilter;
+import com.tja.bh.config.jwt.JWTAuthorizationFilter;
+import com.tja.bh.config.jwt.JwtProvider;
+import com.tja.bh.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -9,26 +12,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import javax.sql.DataSource;
 
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final DataSource postgresqlDataSource;
+    private final JwtProvider jwtProvider;
 
-    private final JwtFilter jwtFilter;
+    private final IUserService userService;
 
     @Autowired
-    public SecurityConfig(DataSource postgresqlDataSource, JwtFilter jwtFilter) {
-        this.postgresqlDataSource = postgresqlDataSource;
-        this.jwtFilter = jwtFilter;
+    public SecurityConfig(JwtProvider jwtProvider, IUserService userService) {
+        this.jwtProvider = jwtProvider;
+        this.userService = userService;
     }
 
     @Bean
@@ -36,17 +34,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
-    }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication()
-                .dataSource(postgresqlDataSource)
-                .authoritiesByUsernameQuery("select email, password from users where email=?")
-                .usersByUsernameQuery("select email, password, enabled from users where email=?");
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -63,7 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/registration", "/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtProvider))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtProvider, userService));
     }
 
 }

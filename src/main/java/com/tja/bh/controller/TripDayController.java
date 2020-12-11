@@ -13,8 +13,8 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@RestController
 @RequestMapping(value = "/api/day", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-@Controller
 @Slf4j
 public class TripDayController {
 
@@ -39,7 +39,7 @@ public class TripDayController {
         return GenericResponse.error();
     }
 
-    @DeleteMapping
+    @DeleteMapping("")
     public GenericResponse<TripDay> deleteTripDay(@RequestBody TripDay tripDay) {
         if (repository.existsById(tripDay.getId())) {
             val deletingTripDay = repository.getOne(tripDay.getId());
@@ -51,7 +51,7 @@ public class TripDayController {
         return GenericResponse.error();
     }
 
-    @PutMapping
+    @PutMapping("")
     public GenericResponse<TripDay> updateTripDay(@RequestBody TripDay tripDay) {
         if (repository.existsById(tripDay.getId())) {
             return GenericResponse.success(repository.saveAndFlush(tripDay));
@@ -60,7 +60,7 @@ public class TripDayController {
         return GenericResponse.error();
     }
 
-    @PostMapping
+    @PostMapping("")
     public GenericResponse<TripDay> createTripDay(@RequestBody TripDay tripDay) {
         if (repository.existsById(tripDay.getId())) {
             return GenericResponse.success(repository.saveAndFlush(tripDay));

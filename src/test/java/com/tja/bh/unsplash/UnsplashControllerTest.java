@@ -1,7 +1,8 @@
 package com.tja.bh.unsplash;
 
 import com.tja.bh.application.Application;
-import com.tja.bh.config.jwt.JwtFilter;
+import com.tja.bh.config.jwt.JwtProvider;
+import com.tja.bh.service.IUserService;
 import com.tja.bh.unsplash.api.UnsplashClient;
 import com.tja.bh.unsplash.api.UnsplashController;
 import com.tja.bh.unsplash.dto.Photo;
@@ -14,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +29,10 @@ public class UnsplashControllerTest {
     private UnsplashClient unsplashClient;
 
     @MockBean
-    private JwtFilter jwtFilter;
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private IUserService userService;
 
     @Autowired
     private MockMvc mvc;

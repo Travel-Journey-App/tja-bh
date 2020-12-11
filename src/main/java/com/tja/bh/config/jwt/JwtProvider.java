@@ -25,12 +25,13 @@ public class JwtProvider {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public Status validateToken(String token) throws ExpiredJwtException {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
-            return true;
+            return Status.OK;
         } catch (ExpiredJwtException expEx) {
             log.debug("Token expired");
+            return Status.EXPIRED;
         } catch (UnsupportedJwtException unsEx) {
             log.debug("Unsupported jwt");
         } catch (MalformedJwtException mjEx) {
@@ -40,11 +41,18 @@ public class JwtProvider {
         } catch (Exception e) {
             log.debug("invalid token");
         }
-        return false;
+
+        return Status.BROKEN;
     }
 
     public String getLoginFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    public enum Status {
+        OK,
+        EXPIRED,
+        BROKEN
     }
 }
