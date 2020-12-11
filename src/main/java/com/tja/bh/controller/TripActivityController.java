@@ -8,7 +8,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,9 +28,11 @@ public class TripActivityController {
 
     @GetMapping("/{activityId}")
     public GenericResponse<TripActivity> getTripActivity(@PathVariable("activityId") Long activityId) {
-        if (repository.existsById(activityId)) {
-            return GenericResponse.success(repository.getOne(activityId));
+        val activity = repository.findById(activityId);
+        if (activity.isPresent()) {
+            return GenericResponse.success(activity.get());
         }
+
         return GenericResponse.error("No activity with id=%s found", activityId);
     }
 
@@ -43,11 +44,11 @@ public class TripActivityController {
     }
 
     @DeleteMapping("/{activityId}")
-    public GenericResponse<TripActivity> deleteTripActivity(@PathVariable("activityId") Long activityId) {
-        if (repository.existsById(activityId)) {
-            final TripActivity tripActivity = repository.getOne(activityId);
+    public GenericResponse<Boolean> deleteTripActivity(@PathVariable("activityId") Long activityId) {
+        val activity = repository.findById(activityId);
+        if (activity.isPresent()) {
             repository.deleteById(activityId);
-            return GenericResponse.success(tripActivity);
+            return GenericResponse.success(true);
         }
 
         return GenericResponse.error("No activity with id=%s found", activityId);

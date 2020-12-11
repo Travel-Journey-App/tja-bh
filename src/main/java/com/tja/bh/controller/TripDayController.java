@@ -32,21 +32,21 @@ public class TripDayController {
 
     @GetMapping("/{dayId}")
     public GenericResponse<TripDay> getTripDay(@PathVariable("dayId") Long dayId) {
-        if (repository.existsById(dayId)) {
-            return GenericResponse.success(repository.getOne(dayId));
+        val tripDay = repository.findById(dayId);
+        if (tripDay.isPresent()) {
+            return GenericResponse.success(tripDay.get());
         }
 
         return GenericResponse.error("No trip day with id=%s found", dayId);
     }
 
     @DeleteMapping("")
-    public GenericResponse<TripDay> deleteTripDay(@RequestBody TripDay tripDay) {
+    public GenericResponse<Boolean> deleteTripDay(@RequestBody TripDay tripDay) {
         val dayId = tripDay.getId();
         if (repository.existsById(dayId)) {
-            val deletingTripDay = repository.getOne(tripDay.getId());
-            repository.delete(tripDay);
+            repository.deleteById(dayId);
 
-            return GenericResponse.success(deletingTripDay);
+            return GenericResponse.success(true);
         }
 
         return GenericResponse.error("No trip day with id=%s found", dayId);

@@ -43,29 +43,31 @@ public class TripController {
 
     @GetMapping("/{tripId}")
     public GenericResponse<Trip> getTrip(@PathVariable("tripId") long tripId) {
-        if (tripRepository.existsById(tripId)) {
-            return GenericResponse.success(tripRepository.getOne(tripId));
+        val trip = tripRepository.findById(tripId);
+        if (trip.isPresent()) {
+            return GenericResponse.success(trip.get());
         }
 
         return GenericResponse.error("No trip with id=%s found", tripId);
     }
 
     @DeleteMapping("/{tripId}")
-    public GenericResponse<Trip> deleteTrip(@PathVariable("tripId") long tripId) {
-        if (tripRepository.existsById(tripId)) {
-            final Trip deletingTrip = tripRepository.getOne(tripId);
-            tripRepository.deleteById(tripId);
-            return GenericResponse.success(deletingTrip);
+    public GenericResponse<Boolean> deleteTrip(@PathVariable("tripId") long tripId) {
+        try {
+            val trip = getIfBelongsToUser(tripId);
+            tripRepository.delete(trip);
+            return GenericResponse.success(true);
+        } catch (Exception e) {
+            return GenericResponse.error("Exception occurred while deleting trip with id=%s: %s", tripId,
+                    e.getMessage());
         }
-
-        return GenericResponse.error("No trip with id=%s found", tripId);
     }
 
     @PutMapping("")
     public GenericResponse<Trip> editTrip(@RequestBody Trip trip) {
         val tripId = trip.getId();
-        if (tripRepository.existsById(tripId)) {
-            val currentTrip = tripRepository.getOne(trip.getId());
+        try {
+            val currentTrip = getIfBelongsToUser(tripId);
             if (!trip.getCover().equals(currentTrip.getCover())) {
                 val photoResponse = unsplashController.getPhoto(trip.getDestination());
                 if (photoResponse.getStatus() == GenericResponse.Status.ERROR) {
@@ -75,9 +77,10 @@ public class TripController {
             }
 
             return GenericResponse.success(tripRepository.saveAndFlush(trip));
+        } catch (Exception e) {
+            return GenericResponse.error("Exception occurred while editing trip with id=%s: %s", tripId,
+                    e.getMessage());
         }
-
-        return GenericResponse.error("No trip with id=%s found", tripId);
     }
 
     @PostMapping("")
@@ -98,15 +101,9 @@ public class TripController {
         return createTrip(trip);
     }
 
-    private boolean checkIfTripAlreadyExists(Trip trip, User user) {
-        val sameTrips = tripRepository.findAllSameTrips(trip);
-        return nonNull(sameTrips) && sameTrips.stream()
-                .anyMatch(sameTrip -> user.equals(sameTrip.getUser()));
-    }
-
     private GenericResponse<Trip> createTripResponse(Trip trip) {
         val user = userService.getUser();
-        if (checkIfTripAlreadyExists(trip, user)) {
+        if (isAlreadyExists(trip, user)) {
             return GenericResponse.error("User already created this trip");
         }
 
@@ -119,5 +116,29 @@ public class TripController {
         trip.setUser(user);
 
         return GenericResponse.success(tripRepository.saveAndFlush(trip));
+    }
+
+    private boolean isAlreadyExists(Trip trip, User user) {
+        val sameTrips = tripRepository.findAllSameTrips(trip);
+        return nonNull(sameTrips) && sameTrips.stream()
+                .anyMatch(sameTrip -> user.equals(sameTrip.getUser()));
+    }
+
+    private Trip getIfBelongsToUser(Long tripId) {
+        return getIfBelongsToUser(tripId, userService.getUser());
+    }
+
+    private Trip getIfBelongsToUser(Long tripId, User user) {
+        val optionalTrip = tripRepository.findById(tripId);
+        if (optionalTrip.isEmpty()) {
+            throw new RuntimeException("Trip does not exist");
+        }
+
+        val existingTrip = optionalTrip.get();
+        if (!user.equals(existingTrip.getUser())) {
+            throw new RuntimeException("Trip does not belong to user");
+        }
+
+        return existingTrip;
     }
 }
