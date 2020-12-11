@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
+import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -81,10 +82,29 @@ public class TripController {
 
     @PostMapping("")
     public GenericResponse<Trip> createTrip(@RequestBody Trip trip) {
-        if (trip.getDestination().isBlank()) {
+        if (isBlank(trip.getDestination())) {
             return GenericResponse.error("No destination is passed");
         }
 
+        return createTripResponse(trip);
+    }
+
+    @GetMapping("/magic")
+    public GenericResponse<Trip> createMagicTrip() {
+        val trip = Trip.builder()
+                //TODO add content
+                .build();
+
+        return createTrip(trip);
+    }
+
+    private boolean checkIfTripAlreadyExists(Trip trip, User user) {
+        val sameTrips = tripRepository.findAllSameTrips(trip);
+        return nonNull(sameTrips) && sameTrips.stream()
+                .anyMatch(sameTrip -> user.equals(sameTrip.getUser()));
+    }
+
+    private GenericResponse<Trip> createTripResponse(Trip trip) {
         val user = userService.getUser();
         if (checkIfTripAlreadyExists(trip, user)) {
             return GenericResponse.error("User already created this trip");
@@ -97,21 +117,7 @@ public class TripController {
 
         trip.setCover(photoResponse.getBody().getLinks().getDownload());
         trip.setUser(user);
-        return GenericResponse.success(tripRepository.saveAndFlush(trip));
-    }
-
-    @GetMapping("/magic")
-    public GenericResponse<Trip> createMagicTrip() {
-        val trip = Trip.builder()
-                //TODO add content
-                .build();
 
         return GenericResponse.success(tripRepository.saveAndFlush(trip));
-    }
-
-    private boolean checkIfTripAlreadyExists(Trip trip, User user) {
-        val sameTrips = tripRepository.findAllSameTrips(trip);
-        return nonNull(sameTrips) && sameTrips.stream()
-                .anyMatch(sameTrip -> user.equals(sameTrip.getUser()));
     }
 }
