@@ -12,9 +12,11 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -38,7 +40,12 @@ public class TripController {
 
     @GetMapping("")
     public GenericResponse<List<Trip>> getAllTrips() {
-        return GenericResponse.success(tripRepository.findAll());
+        val user = userService.getUser();
+        val userTrips = tripRepository.findAll().stream()
+                .filter(trip -> isBelongsToUser(trip, user))
+                .collect(Collectors.toList());
+
+        return GenericResponse.success(userTrips);
     }
 
     @GetMapping("/{tripId}")
@@ -68,7 +75,13 @@ public class TripController {
         val tripId = trip.getId();
         try {
             val currentTrip = getIfBelongsToUser(tripId);
-            if (!trip.getCover().equals(currentTrip.getCover())) {
+            currentTrip.setName(trip.getName());
+            currentTrip.setDestination(trip.getDestination());
+            currentTrip.setStartDate(trip.getStartDate());
+            currentTrip.setEndDate(trip.getEndDate());
+            currentTrip.setDays(trip.getDays());
+
+            if (!currentTrip.getDestination().equals(trip.getDestination())) {
                 val photoResponse = unsplashController.getPhoto(trip.getDestination());
                 if (photoResponse.getStatus() == GenericResponse.Status.ERROR) {
                     return GenericResponse.error("Could not extract photo for the trip: %s", photoResponse.getError());
@@ -76,7 +89,7 @@ public class TripController {
                 trip.setCover(photoResponse.getBody().getLinks().getDownload());
             }
 
-            return GenericResponse.success(tripRepository.saveAndFlush(trip));
+            return GenericResponse.success(tripRepository.saveAndFlush(currentTrip));
         } catch (Exception e) {
             return GenericResponse.error("Exception occurred while editing trip with id=%s: %s", tripId,
                     e.getMessage());
@@ -93,18 +106,15 @@ public class TripController {
     }
 
     @GetMapping("/magic")
-    public GenericResponse<Trip> createMagicTrip() {
-        val trip = Trip.builder()
-                //TODO add content
-                .build();
-
-        return createTrip(trip);
+    public GenericResponse<Trip> getMagicTrip() {
+        return GenericResponse.success(updateTripWithMagicData(new Trip()));
     }
 
     private GenericResponse<Trip> createTripResponse(Trip trip) {
         val user = userService.getUser();
         if (isAlreadyExists(trip, user)) {
-            return GenericResponse.error("User already created this trip");
+            log.warn("TripController. User already created this trip. Editing existing one");
+            return editTrip(trip);
         }
 
         val photoResponse = unsplashController.getPhoto(trip.getDestination());
@@ -120,8 +130,22 @@ public class TripController {
 
     private boolean isAlreadyExists(Trip trip, User user) {
         val sameTrips = tripRepository.findAllSameTrips(trip);
-        return nonNull(sameTrips) && sameTrips.stream()
-                .anyMatch(sameTrip -> user.equals(sameTrip.getUser()));
+        if (isNull(sameTrips) || sameTrips.isEmpty()) {
+            return false;
+        }
+
+        val existingTrip = sameTrips.stream()
+                .filter(sameTrip -> isBelongsToUser(sameTrip, user))
+                .findFirst();
+
+        val isAlreadyExists = existingTrip.isPresent();
+        if (isAlreadyExists) {
+            val existingId = existingTrip.get().getId();
+            log.debug("TripController. Trip is already exists with id={}", existingId);
+            trip.setId(existingId);
+        }
+
+        return isAlreadyExists;
     }
 
     private Trip getIfBelongsToUser(Long tripId) {
@@ -135,10 +159,24 @@ public class TripController {
         }
 
         val existingTrip = optionalTrip.get();
-        if (!user.equals(existingTrip.getUser())) {
+        if (!isBelongsToUser(existingTrip, user)) {
             throw new RuntimeException("Trip does not belong to user");
         }
 
         return existingTrip;
+    }
+
+    private boolean isBelongsToUser(Trip trip, User user) {
+        return user.getId().equals(trip.getUser().getId());
+    }
+
+    private Trip updateTripWithMagicData(Trip trip) {
+        //TODO Add mock data
+        trip.setName("Моя волшебная поездка");
+        trip.setDestination("Хуево-кукуево");
+        trip.setStartDate(new Date(2020, 12, 31));
+        trip.setEndDate(new Date(2021, 1, 10));
+
+        return trip;
     }
 }
