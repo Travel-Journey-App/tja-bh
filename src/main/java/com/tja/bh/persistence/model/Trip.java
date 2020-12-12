@@ -39,4 +39,9 @@ public class Trip {
     @JsonIgnore
     @ManyToOne
     private User user;
+
+    @PreRemove
+    private void tearDown(){
+        user.getTrips().remove(this);
+    }
 }

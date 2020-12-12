@@ -30,4 +30,9 @@ public class TripDay {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     private List<TripActivity> activities;
+
+    @PreRemove
+    private void tearDown(){
+        trip.getDays().remove(this);
+    }
 }

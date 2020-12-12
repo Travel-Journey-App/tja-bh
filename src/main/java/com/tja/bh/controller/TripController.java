@@ -62,7 +62,7 @@ public class TripController {
     public GenericResponse<Boolean> deleteTrip(@PathVariable("tripId") long tripId) {
         try {
             val trip = getIfBelongsToUser(tripId);
-            tripRepository.delete(trip);
+            tripRepository.deleteById(trip.getId());
             return GenericResponse.success(true);
         } catch (Exception e) {
             return GenericResponse.error("Exception occurred while deleting trip with id=%s: %s", tripId,

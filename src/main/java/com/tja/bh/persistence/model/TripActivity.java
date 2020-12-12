@@ -35,4 +35,9 @@ public abstract class TripActivity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tripday_id")
     private TripDay tripDay;
+
+    @PreRemove
+    private void tearDown(){
+        tripDay.getActivities().remove(this);
+    }
 }
