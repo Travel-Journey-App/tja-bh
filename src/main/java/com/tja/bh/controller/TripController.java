@@ -167,7 +167,7 @@ public class TripController {
     }
 
     private boolean isBelongsToUser(Trip trip, User user) {
-        return user.getId().equals(trip.getUser().getId());
+        return user.equals(trip.getUser());
     }
 
     private Trip updateTripWithMagicData(Trip trip) {
