@@ -53,7 +53,7 @@ public class User implements UserDetails {
 
     private String secret;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Trip> trips;
 
     public User() {

@@ -1,5 +1,6 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
 import com.tja.bh.persistence.model.enumeration.TransferType;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
+@JsonTypeName("TRANSFER")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter

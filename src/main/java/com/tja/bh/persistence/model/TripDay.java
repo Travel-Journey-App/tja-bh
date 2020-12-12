@@ -11,6 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "trip_days")
 public class TripDay {
@@ -18,12 +19,15 @@ public class TripDay {
     @Column(unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @EqualsAndHashCode.Include
     private Long orderInTrip;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     private Trip trip;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
     private List<TripActivity> activities;
 }

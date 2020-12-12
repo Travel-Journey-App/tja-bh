@@ -123,9 +123,20 @@ public class TripController {
         }
 
         trip.setCover(photoResponse.getBody().getLinks().getDownload());
-        trip.setUser(user);
+        linkWithUser(trip, user);
 
         return GenericResponse.success(tripRepository.saveAndFlush(trip));
+    }
+
+    private void linkWithUser(Trip trip, User user) {
+        trip.setUser(user);
+        for (var day : trip.getDays()) {
+            day.setTrip(trip);
+            for (var activity : day.getActivities()
+            ) {
+                activity.setTripDay(day);
+            }
+        }
     }
 
     private boolean isAlreadyExists(Trip trip, User user) {

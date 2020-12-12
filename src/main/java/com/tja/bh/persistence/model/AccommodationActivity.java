@@ -1,12 +1,13 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
 import lombok.*;
 import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
+@JsonTypeName("ACCOMMODATION")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Data

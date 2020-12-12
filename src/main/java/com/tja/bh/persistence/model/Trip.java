@@ -12,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "trips")
 public class Trip {
@@ -20,13 +21,19 @@ public class Trip {
     private Long id;
 
     private String name;
+
+    @EqualsAndHashCode.Include
     private String destination;
+
+    @EqualsAndHashCode.Include
     private Date startDate;
+
+    @EqualsAndHashCode.Include
     private Date endDate;
 
     private String cover;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "trip")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "trip", cascade = CascadeType.ALL)
     private List<TripDay> days;
 
     @JsonIgnore
