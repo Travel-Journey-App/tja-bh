@@ -6,7 +6,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Builder
 @NoArgsConstructor
@@ -41,7 +42,11 @@ public class Trip {
     private User user;
 
     @PreRemove
-    private void tearDown(){
+    private void tearDown() {
+        if (isNull(user)) {
+            return;
+        }
+
         user.getTrips().remove(this);
     }
 }

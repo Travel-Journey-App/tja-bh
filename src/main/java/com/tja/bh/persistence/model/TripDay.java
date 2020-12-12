@@ -5,7 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Builder
 @NoArgsConstructor
@@ -30,9 +31,4 @@ public class TripDay {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "tripDay", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     private List<TripActivity> activities;
-
-    @PreRemove
-    private void tearDown(){
-        trip.getDays().remove(this);
-    }
 }

@@ -8,6 +8,8 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import static java.util.Objects.isNull;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "activityType")
 @JsonSubTypes(
         {
@@ -22,22 +24,15 @@ import javax.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class TripActivity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
-    private Long id;
-
     @NonNull
     @JsonIgnore
     @EqualsAndHashCode.Include
     ActivityType activityType;
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    private Long id;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tripday_id")
     private TripDay tripDay;
-
-    @PreRemove
-    private void tearDown(){
-        tripDay.getActivities().remove(this);
-    }
 }
