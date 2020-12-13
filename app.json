@@ -12,7 +12,8 @@
         "SPRING_PROFILES_ACTIVE": "prod",
         "SUPPORT_EMAIL_ADDRESS": "test@test.com",
         "UNSPLASH_ACCESS_KEY": "test",
-        "JWT_SECRET": "test"
+        "JWT_SECRET": "test",
+        "OAUTH_CLIENT_ID": "test"
       },
       "addons": [
         "heroku-postgresql:in-dyno",

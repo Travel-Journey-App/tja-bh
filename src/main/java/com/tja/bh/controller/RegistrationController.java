@@ -57,4 +57,16 @@ public class RegistrationController {
             return GenericResponse.error(e.getMessage());
         }
     }
+
+    @PostMapping("/oauth")
+    public GenericResponse<User> oauthLogin(@RequestBody final UserDto userDto) {
+        log.debug("OAuth login user with information: {}", userDto);
+        val oauthToken = userDto.getGoogleOAuthToken();
+        try {
+            return GenericResponse.success(userService.oauthSignIn(oauthToken));
+        } catch (Exception e) {
+            log.error("OAuth login failed: {}", e.getMessage());
+            return GenericResponse.error(e.getMessage());
+        }
+    }
 }

@@ -33,4 +33,6 @@ public class UserDto {
     private String email;
 
     private boolean isUsing2FA;
+
+    private String googleOAuthToken;
 }

@@ -28,9 +28,11 @@ public abstract class TripActivity {
     @JsonIgnore
     @EqualsAndHashCode.Include
     ActivityType activityType;
+
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tripday_id")

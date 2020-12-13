@@ -8,7 +8,9 @@ import com.tja.bh.persistence.model.VerificationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +19,8 @@ public interface IUserService extends UserDetailsService {
     User signUp(UserDto accountDto) throws UserAlreadyExistException;
 
     User signIn(UserDto accountDto) throws UsernameNotFoundException;
+
+    User oauthSignIn(String googleToken) throws GeneralSecurityException, IOException;
 
     User getUser();
 
