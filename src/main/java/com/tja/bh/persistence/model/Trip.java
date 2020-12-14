@@ -1,6 +1,7 @@
 package com.tja.bh.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,6 +34,12 @@ public class Trip {
     private Date endDate;
 
     private String cover;
+
+    @JsonProperty("lat")
+    private Double latitude;
+
+    @JsonProperty("lon")
+    private Double longitude;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "trip", cascade = CascadeType.ALL)
     private List<TripDay> days;

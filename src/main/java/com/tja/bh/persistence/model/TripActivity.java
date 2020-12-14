@@ -13,6 +13,7 @@ import lombok.*;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "activityType")
 @JsonSubTypes(
@@ -45,13 +46,9 @@ public abstract class TripActivity {
 
     private String description;
 
-    @JsonSerialize(using = JodaDateTimeSerializer.class)
-    @JsonDeserialize(using = JodaDateTimeDeserializer.class)
-    private DateTime startTime;
+    private Date startTime;
 
-    @JsonSerialize(using = JodaDateTimeSerializer.class)
-    @JsonDeserialize(using = JodaDateTimeDeserializer.class)
-    private DateTime endTime;
+    private Date endTime;
 
     private String note;
 
