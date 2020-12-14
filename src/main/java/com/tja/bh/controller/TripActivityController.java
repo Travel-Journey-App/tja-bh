@@ -54,15 +54,38 @@ public class TripActivityController {
         return GenericResponse.success(activityRepository.findAllByActivityType(type));
     }
 
-    @DeleteMapping("/{activityId}")
-    public GenericResponse<Boolean> deleteTripActivity(@PathVariable("activityId") Long activityId) {
-        val activity = activityRepository.findById(activityId);
-        if (activity.isPresent()) {
+    @DeleteMapping("/{tripId}/{dayId}")
+    public GenericResponse<Boolean> deleteTripActivity(@PathVariable("tripId") Long tripId,
+                                                       @PathVariable("dayId") Long dayId,
+                                                       @RequestBody @NonNull TripActivity activity) {
+        try {
+            val trip = tripController.getIfBelongsToUser(tripId);
+            if (trip.getDays().stream().noneMatch(day -> dayId.equals(day.getId()))) {
+                return GenericResponse.error("Trip with id=%s do not have day with id=%s", tripId, dayId);
+            }
+
+            val activityId = activity.getId();
+            val optionalActivity = activityRepository.findById(activityId);
+            if (optionalActivity.isEmpty()) {
+                return GenericResponse.error("No activity found with id=%s", activityId);
+            }
+
+            val existingActivity = optionalActivity.get();
+            if (!tripId.equals(existingActivity.getTripDay().getTrip().getId())) {
+                return GenericResponse.error("No activity with id=%s belongs to trip with id=%s",
+                        activityId, tripId);
+            }
+
+            if (!dayId.equals(existingActivity.getTripDay().getId())) {
+                return GenericResponse.error("No activity with id=%s belongs to day with id=%s",
+                        activityId, dayId);
+            }
+
             activityRepository.deleteById(activityId);
             return GenericResponse.success(true);
+        } catch (Exception e) {
+            return GenericResponse.error(e.getMessage());
         }
-
-        return GenericResponse.error("No activity with id=%s found", activityId);
     }
 
     @PostMapping("/{tripId}/{dayId}")
