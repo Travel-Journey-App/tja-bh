@@ -1,21 +1,25 @@
 package com.tja.bh.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
+import com.tja.bh.util.JodaDateTimeDeserializer;
+import com.tja.bh.util.JodaDateTimeSerializer;
 import lombok.*;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
-
-import static java.util.Objects.isNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "activityType")
 @JsonSubTypes(
         {
-                @JsonSubTypes.Type(value = EventActivity.class, name = "EVENT"),
-                @JsonSubTypes.Type(value = TransferActivity.class, name = "TRANSFER"),
-                @JsonSubTypes.Type(value = AccommodationActivity.class, name = "ACCOMMODATION")
+                @JsonSubTypes.Type(value = EventActivity.class, name = "event"),
+                @JsonSubTypes.Type(value = TransferActivity.class, name = "transfer"),
+                @JsonSubTypes.Type(value = AccommodationActivity.class, name = "accommodation")
         })
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -37,4 +41,24 @@ public abstract class TripActivity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tripday_id")
     private TripDay tripDay;
+
+    private String name;
+
+    private String description;
+
+    @JsonSerialize(using = JodaDateTimeSerializer.class)
+    @JsonDeserialize(using = JodaDateTimeDeserializer.class)
+    private DateTime startTime;
+
+    @JsonSerialize(using = JodaDateTimeSerializer.class)
+    @JsonDeserialize(using = JodaDateTimeDeserializer.class)
+    private DateTime endTime;
+
+    private String note;
+
+    @JsonProperty("lat")
+    private Double latitude;
+
+    @JsonProperty("lon")
+    private Double longitude;
 }

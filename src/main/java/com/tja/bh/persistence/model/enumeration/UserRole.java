@@ -8,8 +8,8 @@ public enum UserRole {
     USER(1L, "ROLE_USER"),
     ADMIN(0L, "ROLE_ADMIN");
 
-    private String name;
-    private Long id;
+    private final String name;
+    private final Long id;
 
     UserRole(Long id, String name) {
         this.id = id;

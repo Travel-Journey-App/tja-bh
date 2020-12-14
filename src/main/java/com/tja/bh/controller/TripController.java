@@ -5,6 +5,7 @@ import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.persistence.model.Trip;
 import com.tja.bh.persistence.model.User;
 import com.tja.bh.persistence.repository.TripRepository;
+import com.tja.bh.service.IPlaceEventService;
 import com.tja.bh.service.IUserService;
 import com.tja.bh.unsplash.api.UnsplashController;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +32,15 @@ public class TripController {
 
     private final UnsplashController unsplashController;
 
+    private final IPlaceEventService placeEventService;
+
     @Autowired
-    public TripController(TripRepository tripRepository, UnsplashController unsplashController, IUserService userService) {
+    public TripController(TripRepository tripRepository, UnsplashController unsplashController,
+                          IUserService userService, IPlaceEventService placeEventService) {
         this.tripRepository = tripRepository;
         this.unsplashController = unsplashController;
         this.userService = userService;
+        this.placeEventService = placeEventService;
     }
 
     @GetMapping("")
@@ -107,7 +112,12 @@ public class TripController {
 
     @GetMapping("/magic")
     public GenericResponse<Trip> getMagicTrip() {
-        return GenericResponse.success(updateTripWithMagicData(new Trip()));
+        return GenericResponse.success(updateTripWithMagicData(Trip.builder()
+                .name("New Year in Tokyo")
+                .destination("Tokyo")
+                .startDate(new Date(2021, 1, 1))
+                .endDate(new Date(2021, 1, 10))
+                .build()));
     }
 
     private GenericResponse<Trip> createTripResponse(Trip trip) {
@@ -182,11 +192,27 @@ public class TripController {
     }
 
     private Trip updateTripWithMagicData(Trip trip) {
-        //TODO Add mock data
-        trip.setName("Моя волшебная поездка");
-        trip.setDestination("Хуево-кукуево");
-        trip.setStartDate(new Date(2020, 12, 31));
-        trip.setEndDate(new Date(2021, 1, 10));
+//        val activities = new Random().ints(30, 0, 29)
+//                .mapToObj(id -> placeEventService.getEventById((long) id))
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
+//
+//        val days = new ArrayList<TripDay>();
+//        for (long i = 0; i < activities.size(); i += 5) {
+//            val day = new TripDay();
+//            day.setOrderInTrip(i / 5);
+//            day.setTrip(trip);
+//            val activitiesInDay = Lists.<TripActivity>newArrayList();
+//            for (long j = i; j < i + 5 && j < activities.size(); j++) {
+//                val activity = activities.get((int) j);
+//                activity.setTripDay(day);
+//                activitiesInDay.add(activity);
+//            }
+//            day.setActivities(activitiesInDay);
+//            days.add(day);
+//        }
+//
+//        trip.setDays(days);
 
         return trip;
     }

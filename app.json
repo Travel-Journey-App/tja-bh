@@ -13,7 +13,8 @@
         "SUPPORT_EMAIL_ADDRESS": "test@test.com",
         "UNSPLASH_ACCESS_KEY": "test",
         "JWT_SECRET": "test",
-        "OAUTH_CLIENT_ID": "test"
+        "OAUTH_CLIENT_ID": "test",
+        "PLACES_DB_BASE_URL": "http://127.0.0.1:8080/"
       },
       "addons": [
         "heroku-postgresql:in-dyno",

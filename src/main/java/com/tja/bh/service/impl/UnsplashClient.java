@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Profile("prod")
 @Service
 public class UnsplashClient implements IUnsplashClient {
+
     private final String baseUrl;
 
     private final RestTemplate restTemplate;

@@ -1,12 +1,13 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
 import lombok.*;
-import org.joda.time.DateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
 @JsonTypeName("ACCOMMODATION")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -15,18 +16,18 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "accommodation_activity")
 public class AccommodationActivity extends TripActivity {
-    String location;
-    String address;
-    DateTime dateTime;
     @Builder.Default
-    Direction accommodationDirection = Direction.CHECK_IN;
+    Direction direction = Direction.CHECK_IN;
 
     public AccommodationActivity() {
         super(ActivityType.ACCOMMODATION);
     }
 
     public enum Direction {
+        @JsonProperty("check-in")
         CHECK_IN,
+
+        @JsonProperty("check-out")
         CHECK_OUT
     }
 }

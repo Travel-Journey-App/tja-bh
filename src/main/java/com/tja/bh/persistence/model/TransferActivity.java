@@ -1,5 +1,6 @@
 package com.tja.bh.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
 import com.tja.bh.persistence.model.enumeration.TransferType;
@@ -18,11 +19,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "transfer_activity")
 public class TransferActivity extends TripActivity {
-    String location;
-    DateTime time;
     TransferType transferType;
     Direction direction;
-    String vehicleVoyageNumber;
+    String voyageNumber;
     String seatNumber;
 
     public TransferActivity() {
@@ -30,7 +29,10 @@ public class TransferActivity extends TripActivity {
     }
 
     public enum Direction {
+        @JsonProperty("arrival")
         ARRIVAL,
+
+        @JsonProperty("departure")
         DEPARTURE
     }
 }
