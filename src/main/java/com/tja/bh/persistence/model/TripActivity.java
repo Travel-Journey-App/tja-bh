@@ -29,7 +29,6 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class TripActivity {
     @NonNull
-    @JsonIgnore
     @EqualsAndHashCode.Include
     ActivityType activityType;
 

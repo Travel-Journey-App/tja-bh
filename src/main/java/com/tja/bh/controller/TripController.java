@@ -3,6 +3,7 @@ package com.tja.bh.controller;
 
 import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.persistence.model.Trip;
+import com.tja.bh.persistence.model.TripDay;
 import com.tja.bh.persistence.model.User;
 import com.tja.bh.persistence.repository.TripRepository;
 import com.tja.bh.service.IPlaceEventService;
@@ -13,6 +14,9 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +88,10 @@ public class TripController {
             currentTrip.setDestination(trip.getDestination());
             currentTrip.setStartDate(trip.getStartDate());
             currentTrip.setEndDate(trip.getEndDate());
-            currentTrip.setDays(trip.getDays());
+            initializeDays(currentTrip);
+            for (int i = 0; i < currentTrip.getDays().size() && i < trip.getDays().size(); i++) {
+                currentTrip.getDays().get(i).getActivities().addAll(trip.getDays().get(i).getActivities());
+            }
 
             if (!currentTrip.getDestination().equals(trip.getDestination())) {
                 val photoResponse = unsplashController.getPhoto(trip.getDestination());
@@ -133,6 +140,7 @@ public class TripController {
         }
 
         trip.setCover(photoResponse.getBody().getLinks().getDownload());
+        initializeDays(trip);
         linkWithUser(trip, user);
 
         return GenericResponse.success(tripRepository.saveAndFlush(trip));
@@ -140,13 +148,23 @@ public class TripController {
 
     private void linkWithUser(Trip trip, User user) {
         trip.setUser(user);
-        for (var day : trip.getDays()) {
-            day.setTrip(trip);
-            for (var activity : day.getActivities()
-            ) {
-                activity.setTripDay(day);
-            }
+    }
+
+    private void initializeDays(Trip trip) {
+        val tripDuration = Duration.between(
+                new Timestamp(trip.getStartDate().getTime()).toLocalDateTime(),
+                new Timestamp(trip.getEndDate().getTime()).toLocalDateTime());
+        val tripLength = tripDuration.toDays() + 1;
+
+        val days = new ArrayList<TripDay>((int) tripLength);
+        for (long i = 1; i <= tripLength; ++i) {
+            days.add(TripDay.builder()
+                    .orderInTrip(i)
+                    .trip(trip)
+                    .build());
         }
+
+        trip.setDays(days);
     }
 
     private boolean isAlreadyExists(Trip trip, User user) {
@@ -169,7 +187,7 @@ public class TripController {
         return isAlreadyExists;
     }
 
-    private Trip getIfBelongsToUser(Long tripId) {
+    Trip getIfBelongsToUser(Long tripId) {
         return getIfBelongsToUser(tripId, userService.getUser());
     }
 

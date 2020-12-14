@@ -49,8 +49,8 @@ public class TripControllerTest {
                 .name("test")
                 .days(List.of())
                 .destination("test")
-                .startDate(new Date())
-                .endDate(new Date())
+                .startDate(new Date(2021, 1, 1))
+                .endDate(new Date(2021, 1, 2))
                 .build();
     }
 
@@ -62,6 +62,7 @@ public class TripControllerTest {
         GenericResponse<Trip> response = controller.createTrip(trip);
         assertEquals(OK, response.getStatus());
         assertEquals(trip, response.getBody());
+        assertEquals(2, response.getBody().getDays().size());
     }
 
     @Test
