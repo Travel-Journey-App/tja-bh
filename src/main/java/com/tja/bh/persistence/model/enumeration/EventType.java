@@ -1,12 +1,18 @@
 package com.tja.bh.persistence.model.enumeration;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum EventType {
-    BREAKFAST,
-    LUNCH,
-    DINNER,
+    @JsonProperty("food")
+    FOOD,
+    @JsonProperty("bar")
     BAR,
+    @JsonProperty("gallery")
     GALLERY,
+    @JsonProperty("sightseeing")
     SIGHTSEEING,
+    @JsonProperty("museum")
     MUSEUM,
+    @JsonProperty("fun")
     FUN
 }
