@@ -66,6 +66,9 @@ public class TripController {
             val existingTrip = trip.get();
             existingTrip.setDays(existingTrip.getDays().stream()
                     .distinct()
+                    .peek(day -> day.getActivities()
+                            .sort(Comparator.comparing(TripActivity::getStartTime)
+                                    .thenComparing(TripActivity::getEndTime)))
                     .collect(Collectors.toList()));
             return GenericResponse.success(existingTrip);
         }
