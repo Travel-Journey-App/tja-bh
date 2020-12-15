@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
@@ -55,5 +57,14 @@ public class Trip {
         }
 
         user.getTrips().remove(this);
+    }
+
+    @JsonIgnore
+    public int getTripLength() {
+        val tripDuration = Duration.between(
+                new Timestamp(getStartDate().getTime()).toLocalDateTime(),
+                new Timestamp(getEndDate().getTime()).toLocalDateTime());
+
+        return (int) tripDuration.toDays() + 1;
     }
 }

@@ -4,13 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tja.bh.persistence.model.enumeration.ActivityType;
-import com.tja.bh.util.JodaDateTimeDeserializer;
-import com.tja.bh.util.JodaDateTimeSerializer;
 import lombok.*;
-import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -44,6 +39,7 @@ public abstract class TripActivity {
 
     private String name;
 
+    @Column(columnDefinition = "varchar(2000)")
     private String description;
 
     private Date startTime;

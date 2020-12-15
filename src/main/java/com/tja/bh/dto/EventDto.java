@@ -1,7 +1,6 @@
 package com.tja.bh.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tja.bh.persistence.model.enumeration.EventType;
 import com.tja.bh.persistence.model.enumeration.PriceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,8 +27,10 @@ public class EventDto {
     private PriceType price;
 
     @JsonProperty("working_hours")
-    private String workingHours;
+    private WorkingHours workingHours;
 
-    private EventType category;
+    private String category;
+
+    private String city;
 
 }

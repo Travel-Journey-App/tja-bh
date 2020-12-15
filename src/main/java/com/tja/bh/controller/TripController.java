@@ -1,10 +1,13 @@
 package com.tja.bh.controller;
 
 
+import com.google.common.collect.Lists;
 import com.tja.bh.dto.GenericResponse;
 import com.tja.bh.persistence.model.Trip;
+import com.tja.bh.persistence.model.TripActivity;
 import com.tja.bh.persistence.model.TripDay;
 import com.tja.bh.persistence.model.User;
+import com.tja.bh.persistence.model.enumeration.EventType;
 import com.tja.bh.persistence.repository.TripRepository;
 import com.tja.bh.service.IPlaceEventService;
 import com.tja.bh.service.IUserService;
@@ -14,14 +17,12 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -29,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/trips", produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class TripController {
+    private static final long SECONDS_IN_DAY = 60 * 60 * 24;
 
     private final IUserService userService;
 
@@ -85,20 +87,27 @@ public class TripController {
         try {
             val currentTrip = getIfBelongsToUser(tripId);
             currentTrip.setName(trip.getName());
-            currentTrip.setDestination(trip.getDestination());
             currentTrip.setStartDate(trip.getStartDate());
             currentTrip.setEndDate(trip.getEndDate());
             initializeDays(currentTrip);
-            for (int i = 0; i < currentTrip.getDays().size() && i < trip.getDays().size(); i++) {
-                currentTrip.getDays().get(i).getActivities().addAll(trip.getDays().get(i).getActivities());
-            }
 
             if (!currentTrip.getDestination().equals(trip.getDestination())) {
                 val photoResponse = unsplashController.getPhoto(trip.getDestination());
                 if (photoResponse.getStatus() == GenericResponse.Status.ERROR) {
                     return GenericResponse.error("Could not extract photo for the trip: %s", photoResponse.getError());
                 }
-                trip.setCover(photoResponse.getBody().getLinks().getDownload());
+                currentTrip.setDestination(trip.getDestination());
+                currentTrip.setCover(photoResponse.getBody().getLinks().getDownload());
+            } else {
+                for (int i = 0; i < currentTrip.getDays().size() && i < trip.getDays().size(); i++) {
+                    val currentDay = currentTrip.getDays().get(i);
+                    var currentDayActivities = currentDay.getActivities();
+                    if (isNull(currentDayActivities) || currentDayActivities.isEmpty()) {
+                        currentDayActivities = newArrayList();
+                        currentDay.setActivities(currentDayActivities);
+                    }
+                    currentDayActivities.addAll(trip.getDays().get(i).getActivities());
+                }
             }
 
             return GenericResponse.success(tripRepository.saveAndFlush(currentTrip));
@@ -117,14 +126,9 @@ public class TripController {
         return createTripResponse(trip);
     }
 
-    @GetMapping("/magic")
-    public GenericResponse<Trip> getMagicTrip() {
-        return GenericResponse.success(updateTripWithMagicData(Trip.builder()
-                .name("New Year in Tokyo")
-                .destination("Tokyo")
-                .startDate(new Date(2021, 1, 1))
-                .endDate(new Date(2021, 1, 10))
-                .build()));
+    @PostMapping("/magic")
+    public GenericResponse<Trip> getMagicTrip(@RequestBody Trip trip) {
+        return GenericResponse.success(updateTripWithMagicData(trip));
     }
 
     private GenericResponse<Trip> createTripResponse(Trip trip) {
@@ -151,12 +155,9 @@ public class TripController {
     }
 
     private void initializeDays(Trip trip) {
-        val tripDuration = Duration.between(
-                new Timestamp(trip.getStartDate().getTime()).toLocalDateTime(),
-                new Timestamp(trip.getEndDate().getTime()).toLocalDateTime());
-        val tripLength = tripDuration.toDays() + 1;
+        val tripLength = trip.getTripLength();
 
-        val days = new ArrayList<TripDay>((int) tripLength);
+        val days = new ArrayList<TripDay>(tripLength);
         for (long i = 1; i <= tripLength; ++i) {
             days.add(TripDay.builder()
                     .orderInTrip(i)
@@ -210,27 +211,60 @@ public class TripController {
     }
 
     private Trip updateTripWithMagicData(Trip trip) {
-//        val activities = new Random().ints(30, 0, 29)
-//                .mapToObj(id -> placeEventService.getEventById((long) id))
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.toList());
-//
-//        val days = new ArrayList<TripDay>();
-//        for (long i = 0; i < activities.size(); i += 5) {
-//            val day = new TripDay();
-//            day.setOrderInTrip(i / 5);
-//            day.setTrip(trip);
-//            val activitiesInDay = Lists.<TripActivity>newArrayList();
-//            for (long j = i; j < i + 5 && j < activities.size(); j++) {
-//                val activity = activities.get((int) j);
-//                activity.setTripDay(day);
-//                activitiesInDay.add(activity);
-//            }
-//            day.setActivities(activitiesInDay);
-//            days.add(day);
-//        }
-//
-//        trip.setDays(days);
+        val activities = Arrays.stream(EventType.values()).parallel()
+                .map(eventType -> placeEventService.getEventByTypeAndCity(eventType, trip.getDestination()))
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        Collections.shuffle(activities);
+
+        val tripLength = trip.getTripLength();
+        val maxActivitiesPerDay = Math.min(activities.size() / tripLength + 1, 5);
+        val days = new ArrayList<TripDay>();
+        for (long i = 0; i < tripLength; ++i) {
+            val day = new TripDay();
+            day.setOrderInTrip(i + 1);
+            day.setTrip(trip);
+
+            val activitiesInDay = Lists.<TripActivity>newArrayList();
+
+            // Merge existing activities with new ones
+            val existingActivities = trip.getDays().get((int) i).getActivities();
+            if (nonNull(existingActivities) && !existingActivities.isEmpty()) {
+                activitiesInDay.addAll(existingActivities);
+            }
+
+            for (long j = i * maxActivitiesPerDay; j < (i + 1) * maxActivitiesPerDay && j < activities.size(); j++) {
+                val activity = activities.get((int) j);
+
+                val tripStartDateInMilliseconds = trip.getStartDate().getTime();
+                val startTime = activity.getStartTime();
+                if (nonNull(startTime)) {
+                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY + startTime.getTime()));
+                } else {
+                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY));
+                }
+
+                val endTime = activity.getEndTime();
+                if (nonNull(endTime)) {
+                    val endDay = endTime.compareTo(startTime) < 0
+                            ? i + 1
+                            : i;
+                    activity.setEndTime(new Date(tripStartDateInMilliseconds + endDay * SECONDS_IN_DAY + endTime.getTime()));
+                } else {
+                    activity.setEndTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY - 1));
+                }
+
+                activity.setTripDay(day);
+                activitiesInDay.add(activity);
+            }
+            activitiesInDay.sort(Comparator.comparing(TripActivity::getStartTime)
+                    .thenComparing(TripActivity::getEndTime));
+            day.setActivities(activitiesInDay);
+            days.add(day);
+        }
+
+        trip.setDays(days);
 
         return trip;
     }
