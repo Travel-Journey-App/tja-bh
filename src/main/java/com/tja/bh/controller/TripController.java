@@ -89,7 +89,6 @@ public class TripController {
             currentTrip.setName(trip.getName());
             currentTrip.setStartDate(trip.getStartDate());
             currentTrip.setEndDate(trip.getEndDate());
-            initializeDays(currentTrip);
 
             if (!currentTrip.getDestination().equals(trip.getDestination())) {
                 val photoResponse = unsplashController.getPhoto(trip.getDestination());
@@ -98,15 +97,19 @@ public class TripController {
                 }
                 currentTrip.setDestination(trip.getDestination());
                 currentTrip.setCover(photoResponse.getBody().getLinks().getDownload());
+                initializeDays(currentTrip);
             } else {
                 for (int i = 0; i < currentTrip.getDays().size() && i < trip.getDays().size(); i++) {
                     val currentDay = currentTrip.getDays().get(i);
                     var currentDayActivities = currentDay.getActivities();
                     if (isNull(currentDayActivities) || currentDayActivities.isEmpty()) {
                         currentDayActivities = newArrayList();
-                        currentDay.setActivities(currentDayActivities);
                     }
-                    currentDayActivities.addAll(trip.getDays().get(i).getActivities());
+
+                    val newActivities = trip.getDays().get(i).getActivities();
+                    newActivities.forEach(newActivity -> newActivity.setTripDay(currentDay));
+                    currentDayActivities.addAll(newActivities);
+                    currentDay.setActivities(currentDayActivities);
                 }
             }
 
