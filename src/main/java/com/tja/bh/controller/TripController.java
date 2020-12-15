@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Comparator.naturalOrder;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.logging.log4j.util.Strings.isBlank;
@@ -30,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/trips", produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class TripController {
-    private static final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+    public static final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 
     private final IUserService userService;
 
@@ -67,8 +68,8 @@ public class TripController {
             existingTrip.setDays(existingTrip.getDays().stream()
                     .distinct()
                     .peek(day -> day.getActivities()
-                            .sort(Comparator.comparing(TripActivity::getStartTime)
-                                    .thenComparing(TripActivity::getEndTime)))
+                            .sort(Comparator.comparing(TripActivity::getStartTime, Comparator.nullsFirst(naturalOrder()))
+                                    .thenComparing(TripActivity::getEndTime, Comparator.nullsLast(naturalOrder()))))
                     .collect(Collectors.toList()));
             return GenericResponse.success(existingTrip);
         }
@@ -270,8 +271,9 @@ public class TripController {
                 activity.setTripDay(day);
                 activitiesInDay.add(activity);
             }
-            activitiesInDay.sort(Comparator.comparing(TripActivity::getStartTime)
-                    .thenComparing(TripActivity::getEndTime));
+            activitiesInDay.sort(
+                    Comparator.comparing(TripActivity::getStartTime, Comparator.nullsFirst(naturalOrder()))
+                            .thenComparing(TripActivity::getEndTime, Comparator.nullsLast(naturalOrder())));
             day.setActivities(activitiesInDay);
             days.add(day);
         }

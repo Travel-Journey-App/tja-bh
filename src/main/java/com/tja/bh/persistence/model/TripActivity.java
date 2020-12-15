@@ -30,6 +30,7 @@ public abstract class TripActivity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @JsonIgnore

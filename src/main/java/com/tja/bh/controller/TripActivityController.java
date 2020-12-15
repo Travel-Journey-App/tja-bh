@@ -13,8 +13,11 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
+import static com.tja.bh.controller.TripController.MILLISECONDS_IN_DAY;
+import static java.util.Objects.nonNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -60,7 +63,10 @@ public class TripActivityController {
                                                        @RequestBody @NonNull TripActivity activity) {
         try {
             val trip = tripController.getIfBelongsToUser(tripId);
-            if (trip.getDays().stream().noneMatch(day -> dayId.equals(day.getId()))) {
+            val optionalTripDay = trip.getDays().stream()
+                    .filter(day -> dayId.equals(day.getId()))
+                    .findFirst();
+            if (optionalTripDay.isEmpty()) {
                 return GenericResponse.error("Trip with id=%s do not have day with id=%s", tripId, dayId);
             }
 
@@ -81,7 +87,12 @@ public class TripActivityController {
                         activityId, dayId);
             }
 
+            val dayInTrip = optionalTripDay.get();
+            dayInTrip.getActivities().removeIf(activityInDay -> activityId.equals(activityInDay.getId()));
+            tripDayRepository.saveAndFlush(dayInTrip);
+
             activityRepository.deleteById(activityId);
+
             return GenericResponse.success(true);
         } catch (Exception e) {
             return GenericResponse.error(e.getMessage());
