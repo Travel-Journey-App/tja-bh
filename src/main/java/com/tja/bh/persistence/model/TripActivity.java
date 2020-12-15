@@ -37,20 +37,25 @@ public abstract class TripActivity {
     @JoinColumn(name = "tripday_id")
     private TripDay tripDay;
 
+    @EqualsAndHashCode.Include
     private String name;
 
     @Column(columnDefinition = "varchar(2000)")
     private String description;
 
+    @EqualsAndHashCode.Include
     private Date startTime;
 
+    @EqualsAndHashCode.Include
     private Date endTime;
 
     private String note;
 
+    @EqualsAndHashCode.Include
     @JsonProperty("lat")
     private Double latitude;
 
+    @EqualsAndHashCode.Include
     @JsonProperty("lon")
     private Double longitude;
 }

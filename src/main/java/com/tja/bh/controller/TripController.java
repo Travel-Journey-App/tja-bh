@@ -109,7 +109,9 @@ public class TripController {
                     val newActivities = trip.getDays().get(i).getActivities();
                     newActivities.forEach(newActivity -> newActivity.setTripDay(currentDay));
                     currentDayActivities.addAll(newActivities);
-                    currentDay.setActivities(currentDayActivities);
+                    currentDay.setActivities(currentDayActivities.stream()
+                            .distinct()
+                            .collect(Collectors.toList()));
                 }
             }
 
