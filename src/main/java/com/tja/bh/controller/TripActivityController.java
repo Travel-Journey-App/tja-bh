@@ -96,10 +96,12 @@ public class TripActivityController {
             val trip = tripController.getIfBelongsToUser(tripId);
             val day = trip.getDays().stream()
                     .filter(dayInTrip -> dayId.equals(dayInTrip.getId()))
-                    .findFirst()
-                    .orElseThrow(RuntimeException::new);
+                    .findFirst();
+            if (day.isEmpty()) {
+                throw new RuntimeException("Can not obtain day with requested id");
+            }
 
-            activity.setTripDay(day);
+            activity.setTripDay(day.get());
 
             return GenericResponse.success(activityRepository.saveAndFlush(activity));
         } catch (Exception e) {
