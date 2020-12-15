@@ -19,6 +19,7 @@ public class TripDay {
     @Id
     @Column(unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @EqualsAndHashCode.Include

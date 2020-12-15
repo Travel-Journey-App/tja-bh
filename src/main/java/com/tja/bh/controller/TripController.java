@@ -30,7 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/api/trips", produces = APPLICATION_JSON_VALUE)
 @Slf4j
 public class TripController {
-    private static final long SECONDS_IN_DAY = 60 * 60 * 24;
+    private static final long MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 
     private final IUserService userService;
 
@@ -63,7 +63,11 @@ public class TripController {
     public GenericResponse<Trip> getTrip(@PathVariable("tripId") long tripId) {
         val trip = tripRepository.findById(tripId);
         if (trip.isPresent()) {
-            return GenericResponse.success(trip.get());
+            val existingTrip = trip.get();
+            existingTrip.setDays(existingTrip.getDays().stream()
+                    .distinct()
+                    .collect(Collectors.toList()));
+            return GenericResponse.success(existingTrip);
         }
 
         return GenericResponse.error("No trip with id=%s found", tripId);
@@ -245,9 +249,9 @@ public class TripController {
                 val tripStartDateInMilliseconds = trip.getStartDate().getTime();
                 val startTime = activity.getStartTime();
                 if (nonNull(startTime)) {
-                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY + startTime.getTime()));
+                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * MILLISECONDS_IN_DAY + startTime.getTime()));
                 } else {
-                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY));
+                    activity.setStartTime(new Date(tripStartDateInMilliseconds + i * MILLISECONDS_IN_DAY));
                 }
 
                 val endTime = activity.getEndTime();
@@ -255,9 +259,9 @@ public class TripController {
                     val endDay = endTime.compareTo(startTime) < 0
                             ? i + 1
                             : i;
-                    activity.setEndTime(new Date(tripStartDateInMilliseconds + endDay * SECONDS_IN_DAY + endTime.getTime()));
+                    activity.setEndTime(new Date(tripStartDateInMilliseconds + endDay * MILLISECONDS_IN_DAY + endTime.getTime()));
                 } else {
-                    activity.setEndTime(new Date(tripStartDateInMilliseconds + i * SECONDS_IN_DAY - 1));
+                    activity.setEndTime(new Date(tripStartDateInMilliseconds + i * MILLISECONDS_IN_DAY - 1000));
                 }
 
                 activity.setTripDay(day);
